@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShopEase Project Board</title>
+<style>
+:root {
+  --bg: #f4f5f7; --panel: #fff; --line: #dfe1e6; --line2: #ebecf0; --text: #172b4d; --text2: #5e6c84; --text3: #8993a4;
+  --blue: #0c66e4; --green: #1f845a; --amber: #b65c02; --red: #c9372c; --colbg: #ebecf0;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 14px/1.4 "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; color: var(--text); background: var(--bg); }
+header { background: #fff; border-bottom: 1px solid var(--line); padding: 10px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+header h1 { font-size: 17px; margin: 0; font-weight: 600; }
+header .sub { font-size: 12px; color: var(--text2); }
+.controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.controls label { font-size: 12px; color: var(--text2); }
+input[type=date], select { font: inherit; padding: 5px 8px; border: 1px solid var(--line); border-radius: 4px; background: #fff; color: var(--text); }
+button { font: inherit; padding: 6px 12px; border: 1px solid var(--line); border-radius: 4px; background: #fff; color: var(--text); cursor: pointer; }
+button:hover { background: #f1f2f4; }
+button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+button.primary:hover { background: #0055cc; }
+nav { display: flex; gap: 2px; padding: 0 20px; background: #fff; border-bottom: 1px solid var(--line); }
+nav button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 10px 14px; color: var(--text2); background: none; }
+nav button.on { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+main { padding: 16px 20px 40px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.kpi { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; }
+.kpi > span { display: block; font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: .03em; }
+.kpi b { font-size: 18px; font-weight: 600; }
+.kpi small { display: block; font-size: 11px; color: var(--text3); }
+.good { color: var(--green); } .warn { color: var(--amber); } .bad { color: var(--red); }
+.board { display: grid; grid-template-columns: repeat(5, minmax(200px, 1fr)); gap: 10px; align-items: start; }
+.col { background: var(--colbg); border-radius: 6px; padding: 8px; min-height: 420px; }
+.col.over { outline: 2px solid var(--red); background: #ffeceb; }
+.col.drop { background: #dfe7f7; }
+.colhead { display: flex; justify-content: space-between; align-items: baseline; padding: 2px 4px 8px; font-weight: 600; font-size: 13px; }
+.colhead small { font-weight: 400; color: var(--text2); }
+.cards { display: flex; flex-direction: column; gap: 6px; min-height: 60px; }
+.card { background: #fff; border-radius: 4px; box-shadow: 0 1px 1px rgba(9,30,66,.25); padding: 8px 9px; cursor: grab; border-left: 3px solid transparent; }
+.card.crit { border-left-color: var(--red); }
+.card:hover { background: #fafbfc; }
+.card .t { font-size: 13px; margin: 2px 0 6px; }
+.card .meta { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text2); gap: 4px; }
+.tag { font-size: 11px; padding: 1px 6px; border-radius: 3px; background: #e9f2ff; color: #0055cc; font-weight: 600; }
+.role { font-size: 10px; padding: 1px 5px; border-radius: 3px; background: #f1f2f4; color: var(--text2); }
+.age { font-weight: 600; } .age.a2 { color: var(--amber); } .age.a3 { color: var(--red); }
+.mv { display: flex; gap: 4px; }
+.mv button { padding: 0 6px; font-size: 11px; line-height: 18px; }
+.more { font-size: 12px; color: var(--text2); text-align: center; padding: 4px; cursor: pointer; }
+.toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; font-size: 12px; color: var(--text2); }
+.panel { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; margin-bottom: 14px; }
+.panel h2 { font-size: 15px; margin: 0 0 4px; }
+.panel p.note { font-size: 12px; color: var(--text2); margin: 0 0 10px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+th, td { border: 1px solid var(--line); padding: 5px 7px; text-align: left; }
+th { background: #f7f8f9; font-weight: 600; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+.raci td { text-align: center; cursor: pointer; width: 64px; user-select: none; }
+.raci td.lbl { text-align: left; cursor: default; width: auto; }
+.raci td.R { background: #dcfff1; } .raci td.A { background: #e9f2ff; font-weight: 700; } .raci td.C { background: #fff7d6; } .raci td.I { background: #f7f8f9; }
+.raci tr.err td.lbl { color: var(--red); font-weight: 600; }
+svg text { font-family: "Segoe UI", Arial, sans-serif; }
+.drawer { position: fixed; top: 0; right: 0; width: 380px; max-width: 100%; height: 100%; background: #fff; box-shadow: -4px 0 16px rgba(9,30,66,.2); padding: 18px; overflow: auto; transform: translateX(100%); transition: transform .15s; z-index: 5; }
+.drawer.open { transform: none; }
+.drawer h3 { margin: 4px 0 10px; font-size: 16px; }
+.drawer dl { display: grid; grid-template-columns: 130px 1fr; gap: 4px 8px; font-size: 13px; margin: 0 0 12px; }
+.drawer dt { color: var(--text2); }
+.toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #172b4d; color: #fff; padding: 8px 14px; border-radius: 4px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 9; }
+.toast.show { opacity: 1; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--text2); margin-top: 6px; }
+.legend i { display: inline-block; width: 12px; height: 3px; vertical-align: middle; margin-right: 4px; }
+@media (max-width: 1100px) { .board { grid-template-columns: repeat(5, 230px); overflow-x: auto; } .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>ShopEase Online Store: Project Board</h1>
+    <div class="sub">Project Manager: Abhay Maurya &middot; Execution control: Kanban flow + earned value</div>
+  </div>
+  <div class="controls">
+    <label for="status">Status date</label>
+    <input type="date" id="status">
+    <button id="nextDay" title="Move the status date to the next working day">Next working day</button>
+    <button id="exportBtn">Export JSON</button>
+    <button id="resetBtn">Reset to baseline data</button>
+  </div>
+</header>
+<nav id="tabs">
+  <button data-tab="board" class="on">Board</button>
+  <button data-tab="flow">Flow metrics</button>
+  <button data-tab="evm">Earned value</button>
+  <button data-tab="raci">RACI matrix</button>
+</nav>
+<main>
+  <section class="kpis" id="kpis"></section>
+
+  <section id="tab-board">
+    <div class="toolbar">
+      <label>Activity <select id="fAct"><option value="">All</option></select></label>
+      <label>Role <select id="fRole"><option value="">All</option></select></label>
+      <label><input type="checkbox" id="fCrit"> Critical path only</label>
+      <span>Drag a card to another column, or use the arrows. Moves are dated with the status date.</span>
+    </div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <section id="tab-flow" hidden>
+    <div class="grid2">
+      <div class="panel"><h2>Cumulative flow diagram</h2><p class="note">Number of tasks in each column at the end of every working day. The vertical gap of a band is the queue size; the horizontal gap is the approximate lead time.</p><div id="cfd"></div></div>
+      <div class="panel"><h2>Cycle time of finished tasks</h2><p class="note">Working days from start of work (In progress) to Done, including review. Dashed lines: average and 85th percentile.</p><div id="ctChart"></div></div>
+      <div class="panel"><h2>Throughput and velocity per week</h2><p class="note">Bars: tasks finished. Line: velocity, the planned effort (person-days) of the tasks finished.</p><div id="tpChart"></div></div>
+      <div class="panel"><h2>Flow summary</h2><div id="flowTable"></div></div>
+    </div>
+  </section>
+
+  <section id="tab-evm" hidden>
+    <div class="panel"><h2>S-curve: planned value, earned value and actual cost</h2><p class="note">PV is the time-phased cost baseline from the schedule. EV and AC are rebuilt from the board history, day by day, up to the status date.</p><div id="scurve"></div></div>
+    <div class="grid2">
+      <div class="panel"><h2>Earned value at the status date</h2><div id="evmTable"></div></div>
+      <div class="panel"><h2>SPI and CPI trend</h2><p class="note">Performance indices at the end of each week and at the status date. Below 0.90 the project manager starts corrective action (see the control plan).</p><div id="idxChart"></div></div>
+    </div>
+    <div class="panel"><h2>Earned value by activity</h2><div id="actTable"></div></div>
+  </section>
+
+  <section id="tab-raci" hidden>
+    <div class="panel">
+      <h2>RACI matrix</h2>
+      <p class="note">R = Responsible (does the work), A = Accountable (one owner who approves), C = Consulted, I = Informed. Click a cell to change it. Each activity must have exactly one A and at least one R.</p>
+      <div id="raciCheck" style="margin-bottom:8px;font-weight:600"></div>
+      <div style="overflow:auto"><table class="raci" id="raci"></table></div>
+    </div>
+  </section>
+</main>
+<aside class="drawer" id="drawer"></aside>
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = {"start":"2026-09-01","week1":"2026-08-31","status":"2026-10-03","holidays":["2026-09-14","2026-10-02","2026-10-20","2026-11-09","2026-11-10","2026-11-11","2026-12-25","2026-12-28","2026-12-29","2026-12-30","2026-12-31","2027-01-01","2027-01-26"],"rates":{"PM":3500,"BA":3000,"UX":3000,"DEV":3500,"QA":2800,"OPS":3800},"roles":["SP","OH","PM","BA","UX","DEV","QA","OPS","CA"],"roleNames":{"SP":"Sponsor (R. Kulkarni)","OH":"Operations Head (M. Kulkarni)","PM":"Project Manager (Abhay Maurya)","BA":"Business Analyst","UX":"UI/UX Designer","DEV":"Developers (2)","QA":"QA Engineer","OPS":"DevOps Engineer","CA":"Accountant (CA firm)"},"acts":[{"id":"A","name":"Project initiation and charter","wbs":"1.1.1","bac":20500,"bs":"2026-09-01","bf":"2026-09-07","crit":true,"raci":"ACRCIIII-"},{"id":"B","name":"Project planning (baselines)","wbs":"1.1.2","bac":27000,"bs":"2026-09-08","bf":"2026-09-16","crit":false,"raci":"ICARICCC-"},{"id":"C","name":"Requirements specification","wbs":"1.2.1","bac":37000,"bs":"2026-09-08","bf":"2026-09-22","crit":true,"raci":"CCARCCIIC"},{"id":"D","name":"UI/UX design and prototype test","wbs":"1.2.2","bac":57000,"bs":"2026-09-23","bf":"2026-10-14","crit":true,"raci":"ICACRCI--"},{"id":"E","name":"Architecture and database design","wbs":"1.2.3","bac":35600,"bs":"2026-09-21","bf":"2026-10-05","crit":false,"raci":"I-AC-RCC-"},{"id":"F","name":"Cloud hosting and environments","wbs":"1.6.1","bac":58800,"bs":"2026-09-30","bf":"2026-10-09","crit":false,"raci":"I-A--C-R-"},{"id":"G","name":"CI/CD pipeline","wbs":"1.6.2","bac":19000,"bs":"2026-10-06","bf":"2026-10-12","crit":false,"raci":"--A--CCR-"},{"id":"H","name":"User accounts and OTP login","wbs":"1.3.2","bac":28000,"bs":"2026-10-08","bf":"2026-10-19","crit":false,"raci":"--ACCRCI-"},{"id":"I","name":"Product catalogue and search","wbs":"1.3.1","bac":49000,"bs":"2026-10-15","bf":"2026-11-04","crit":true,"raci":"ICACCRCI-"},{"id":"J","name":"Product and inventory admin","wbs":"1.5.1","bac":35000,"bs":"2026-10-21","bf":"2026-11-03","crit":false,"raci":"ICACCRCI-"},{"id":"K","name":"Shopping cart and checkout","wbs":"1.3.3","bac":49000,"bs":"2026-11-05","bf":"2026-11-27","crit":true,"raci":"ICACCRCI-"},{"id":"L","name":"Payment gateway integration","wbs":"1.4.1","bac":35000,"bs":"2026-11-30","bf":"2026-12-11","crit":true,"raci":"CIAC-RCCI"},{"id":"M","name":"Order management and returns","wbs":"1.5.2","bac":35000,"bs":"2026-11-16","bf":"2026-11-27","crit":false,"raci":"ICACCRCI-"},{"id":"N","name":"Shipping and courier integration","wbs":"1.4.2","bac":21000,"bs":"2026-11-30","bf":"2026-12-07","crit":false,"raci":"ICAC-RCI-"},{"id":"O","name":"GST invoice generation","wbs":"1.4.3","bac":20500,"bs":"2026-12-08","bf":"2026-12-14","crit":false,"raci":"IIAC-RC-C"},{"id":"P","name":"Order tracking and notifications","wbs":"1.3.4","bac":28000,"bs":"2026-12-14","bf":"2026-12-23","crit":true,"raci":"ICACCRCI-"},{"id":"Q","name":"Sales reports dashboard","wbs":"1.5.3","bac":21000,"bs":"2026-12-15","bf":"2026-12-22","crit":false,"raci":"CCACCRC--"},{"id":"R","name":"Security hardening and backups","wbs":"1.6.3","bac":30800,"bs":"2026-11-04","bf":"2026-11-20","crit":false,"raci":"I-A--CCR-"},{"id":"S","name":"Functional and integration testing","wbs":"1.7.1","bac":64400,"bs":"2026-12-02","bf":"2027-01-06","crit":true,"raci":"IIAC-RRC-"},{"id":"T","name":"Performance and security testing (VAPT)","wbs":"1.7.2","bac":63200,"bs":"2026-12-22","bf":"2027-01-08","crit":true,"raci":"I-A--CRR-"},{"id":"U","name":"Product data migration","wbs":"1.8.1","bac":58500,"bs":"2026-11-30","bf":"2026-12-15","crit":false,"raci":"ICAR-RC--"},{"id":"V","name":"User acceptance testing","wbs":"1.7.3","bac":30200,"bs":"2027-01-11","bf":"2027-01-18","crit":true,"raci":"ARRR-CRI-"},{"id":"W","name":"Staff training and user manual","wbs":"1.8.2","bac":20000,"bs":"2027-01-14","bf":"2027-01-25","crit":true,"raci":"ICARC----"},{"id":"X","name":"Go-live preparation and deployment","wbs":"1.8.3","bac":20900,"bs":"2027-01-20","bf":"2027-01-25","crit":true,"raci":"ACRI-RRRC"},{"id":"Y","name":"Hypercare (2 weeks)","wbs":"1.8.3","bac":31400,"bs":"2027-01-27","bf":"2027-02-09","crit":true,"raci":"ICAC-RRR-"},{"id":"Z","name":"Project closure","wbs":"1.1.4","bac":17000,"bs":"2027-02-10","bf":"2027-02-16","crit":true,"raci":"ACRRIIIII"}],"loe":{"id":"LOE","name":"Monitoring and status reporting","wbs":"1.1.3","bac":105000,"bs":"2026-09-08","bf":"2027-02-09"},"tasks":[{"id":"A1","act":"A","title":"Draft project charter","role":"PM","effort":3,"nl":0,"bac":10500,"hist":[["2026-09-01","ready"],["2026-09-01","doing"],["2026-09-03","done"]]},{"id":"A2","act":"A","title":"Identify stakeholders, register v1.0","role":"BA","effort":1,"nl":0,"bac":3000,"hist":[["2026-09-01","ready"],["2026-09-02","doing"],["2026-09-02","done"]]},{"id":"A3","act":"A","title":"Kick-off meeting and charter sign-off","role":"PM","effort":2,"nl":0,"bac":7000,"hist":[["2026-09-01","ready"],["2026-09-04","doing"],["2026-09-07","done"]]},{"id":"B1","act":"B","title":"Scope statement, WBS and WBS dictionary","role":"PM","effort":3,"nl":0,"bac":10500,"hist":[["2026-09-07","ready"],["2026-09-08","doing"],["2026-09-10","done"]]},{"id":"B2","act":"B","title":"Schedule and cost baselines","role":"PM","effort":3,"nl":0,"bac":10500,"hist":[["2026-09-07","ready"],["2026-09-11","doing"],["2026-09-16","done"]]},{"id":"B3","act":"B","title":"Risk register and communication plan","role":"BA","effort":2,"nl":0,"bac":6000,"hist":[["2026-09-01","ready"],["2026-09-03","doing"],["2026-09-04","done"]]},{"id":"C1","act":"C","title":"Interviews: owner, operations, staff, CA","role":"BA","effort":4,"nl":0,"bac":12000,"hist":[["2026-09-07","ready"],["2026-09-08","doing"],["2026-09-11","done"]]},{"id":"C2","act":"C","title":"Map current WhatsApp order process","role":"BA","effort":2,"nl":0,"bac":6000,"hist":[["2026-09-07","ready"],["2026-09-15","doing"],["2026-09-16","done"]]},{"id":"C3","act":"C","title":"Write user stories and SRS","role":"BA","effort":4,"nl":0,"bac":12000,"hist":[["2026-09-15","ready"],["2026-09-17","doing"],["2026-09-22","review"],["2026-09-23","done"]]},{"id":"C4","act":"C","title":"SRS review and sign-off","role":"PM","effort":2,"nl":0,"bac":7000,"hist":[["2026-09-17","ready"],["2026-09-22","doing"],["2026-09-23","done"]]},{"id":"D1","act":"D","title":"Wireframes (mobile first)","role":"UX","effort":5,"nl":6000,"bac":21000,"hist":[["2026-09-21","ready"],["2026-09-24","doing"],["2026-09-30","review"],["2026-10-01","done"]]},{"id":"D2","act":"D","title":"High fidelity mock-ups, 18 screens","role":"UX","effort":6,"nl":0,"bac":18000,"hist":[["2026-09-24","ready"],["2026-10-01","doing"]]},{"id":"D3","act":"D","title":"Clickable prototype","role":"UX","effort":4,"nl":0,"bac":12000,"hist":[["2026-09-30","ready"]]},{"id":"D4","act":"D","title":"Prototype test with 5 customers","role":"BA","effort":2,"nl":0,"bac":6000,"hist":[]},{"id":"E1","act":"E","title":"Tech stack and architecture document","role":"DEV","effort":3,"nl":0,"bac":10500,"hist":[["2026-09-18","ready"],["2026-09-22","doing"],["2026-09-24","done"]]},{"id":"E2","act":"E","title":"Database schema and ER diagram","role":"DEV","effort":3,"nl":0,"bac":10500,"hist":[["2026-09-18","ready"],["2026-09-25","doing"],["2026-09-29","review"],["2026-09-29","done"]]},{"id":"E3","act":"E","title":"API specification","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[["2026-09-24","ready"],["2026-09-30","doing"],["2026-10-01","review"]]},{"id":"E4","act":"E","title":"Deployment architecture review","role":"OPS","effort":2,"nl":0,"bac":7600,"hist":[["2026-09-24","ready"],["2026-09-29","doing"],["2026-09-30","done"]]},{"id":"F1","act":"F","title":"Cloud account, domain and SSL","role":"OPS","effort":2,"nl":36000,"bac":43600,"hist":[["2026-09-28","ready"],["2026-10-01","doing"]]},{"id":"F2","act":"F","title":"Staging environment","role":"OPS","effort":2,"nl":0,"bac":7600,"hist":[["2026-09-30","ready"]]},{"id":"F3","act":"F","title":"Production environment and database","role":"OPS","effort":2,"nl":0,"bac":7600,"hist":[]},{"id":"G1","act":"G","title":"Build and test pipeline","role":"OPS","effort":3,"nl":0,"bac":11400,"hist":[["2026-10-01","ready"]]},{"id":"G2","act":"G","title":"Deploy and rollback pipeline","role":"OPS","effort":2,"nl":0,"bac":7600,"hist":[]},{"id":"H1","act":"H","title":"OTP login and registration","role":"DEV","effort":4,"nl":0,"bac":14000,"hist":[["2026-10-01","ready"]]},{"id":"H2","act":"H","title":"Profile and address book","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"H3","act":"H","title":"Consent and privacy screens","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"I1","act":"I","title":"Home and category pages","role":"DEV","effort":4,"nl":0,"bac":14000,"hist":[]},{"id":"I2","act":"I","title":"Product page with size/colour variants","role":"DEV","effort":4,"nl":0,"bac":14000,"hist":[]},{"id":"I3","act":"I","title":"Search and filters","role":"DEV","effort":4,"nl":0,"bac":14000,"hist":[]},{"id":"I4","act":"I","title":"Responsive layout fixes","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"J1","act":"J","title":"Product and variant admin","role":"DEV","effort":4,"nl":0,"bac":14000,"hist":[]},{"id":"J2","act":"J","title":"Excel bulk upload","role":"DEV","effort":3,"nl":0,"bac":10500,"hist":[]},{"id":"J3","act":"J","title":"Stock and low-stock alerts","role":"DEV","effort":3,"nl":0,"bac":10500,"hist":[]},{"id":"K1","act":"K","title":"Shopping cart","role":"DEV","effort":4,"nl":0,"bac":14000,"hist":[]},{"id":"K2","act":"K","title":"Coupons and delivery charges","role":"DEV","effort":4,"nl":0,"bac":14000,"hist":[]},{"id":"K3","act":"K","title":"Checkout flow","role":"DEV","effort":6,"nl":0,"bac":21000,"hist":[]},{"id":"L1","act":"L","title":"UPI and card payments","role":"DEV","effort":4,"nl":0,"bac":14000,"hist":[]},{"id":"L2","act":"L","title":"Cash on delivery rules","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"L3","act":"L","title":"Refunds and webhooks","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"L4","act":"L","title":"Settlement reconciliation report","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"M1","act":"M","title":"Order list and processing","role":"DEV","effort":4,"nl":0,"bac":14000,"hist":[]},{"id":"M2","act":"M","title":"Returns and exchanges","role":"DEV","effort":4,"nl":0,"bac":14000,"hist":[]},{"id":"M3","act":"M","title":"Refund trigger","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"N1","act":"N","title":"PIN code serviceability check","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"N2","act":"N","title":"Shipments and labels","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"N3","act":"N","title":"Tracking status sync","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"O1","act":"O","title":"GST invoice PDF","role":"DEV","effort":3,"nl":0,"bac":10500,"hist":[]},{"id":"O2","act":"O","title":"Monthly GST export","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"O3","act":"O","title":"CA review of 20 sample invoices","role":"BA","effort":1,"nl":0,"bac":3000,"hist":[]},{"id":"P1","act":"P","title":"Order tracking page","role":"DEV","effort":3,"nl":0,"bac":10500,"hist":[]},{"id":"P2","act":"P","title":"SMS and e-mail alerts","role":"DEV","effort":3,"nl":0,"bac":10500,"hist":[]},{"id":"P3","act":"P","title":"WhatsApp notifications","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"Q1","act":"Q","title":"Sales dashboard","role":"DEV","effort":4,"nl":0,"bac":14000,"hist":[]},{"id":"Q2","act":"Q","title":"CSV exports","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"R1","act":"R","title":"Server hardening and firewall","role":"OPS","effort":3,"nl":0,"bac":11400,"hist":[]},{"id":"R2","act":"R","title":"Daily backups and restore test","role":"OPS","effort":2,"nl":8000,"bac":15600,"hist":[]},{"id":"R3","act":"R","title":"Uptime monitoring and alerts","role":"OPS","effort":1,"nl":0,"bac":3800,"hist":[]},{"id":"S1","act":"S","title":"Test plan and test cases","role":"QA","effort":5,"nl":0,"bac":14000,"hist":[]},{"id":"S2","act":"S","title":"Storefront test run","role":"QA","effort":5,"nl":0,"bac":14000,"hist":[]},{"id":"S3","act":"S","title":"Admin and integration test run","role":"QA","effort":5,"nl":0,"bac":14000,"hist":[]},{"id":"S4","act":"S","title":"Regression run","role":"QA","effort":3,"nl":0,"bac":8400,"hist":[]},{"id":"S5","act":"S","title":"Defect fixing","role":"DEV","effort":4,"nl":0,"bac":14000,"hist":[]},{"id":"T1","act":"T","title":"Load test, 500 users","role":"QA","effort":3,"nl":0,"bac":8400,"hist":[]},{"id":"T2","act":"T","title":"External VAPT","role":"OPS","effort":2,"nl":35000,"bac":42600,"hist":[]},{"id":"T3","act":"T","title":"Retest of findings","role":"QA","effort":3,"nl":0,"bac":8400,"hist":[]},{"id":"T4","act":"T","title":"Deploy security fixes","role":"OPS","effort":1,"nl":0,"bac":3800,"hist":[]},{"id":"U1","act":"U","title":"Clean product master file","role":"BA","effort":3,"nl":0,"bac":9000,"hist":[]},{"id":"U2","act":"U","title":"Photo shoot, 300 products","role":"BA","effort":2,"nl":30000,"bac":36000,"hist":[]},{"id":"U3","act":"U","title":"Bulk import to production","role":"DEV","effort":3,"nl":0,"bac":10500,"hist":[]},{"id":"U4","act":"U","title":"Sample check with operations","role":"BA","effort":1,"nl":0,"bac":3000,"hist":[]},{"id":"V1","act":"V","title":"UAT scripts","role":"BA","effort":2,"nl":0,"bac":6000,"hist":[]},{"id":"V2","act":"V","title":"UAT sessions","role":"QA","effort":4,"nl":0,"bac":11200,"hist":[]},{"id":"V3","act":"V","title":"UAT results","role":"BA","effort":2,"nl":0,"bac":6000,"hist":[]},{"id":"V4","act":"V","title":"UAT sign-off meeting","role":"PM","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"W1","act":"W","title":"User manual (English and Marathi)","role":"BA","effort":3,"nl":5000,"bac":14000,"hist":[]},{"id":"W2","act":"W","title":"Staff training sessions","role":"BA","effort":2,"nl":0,"bac":6000,"hist":[]},{"id":"X1","act":"X","title":"Go/no-go checklist","role":"PM","effort":1,"nl":0,"bac":3500,"hist":[]},{"id":"X2","act":"X","title":"Production deployment","role":"OPS","effort":2,"nl":0,"bac":7600,"hist":[]},{"id":"X3","act":"X","title":"Smoke test","role":"QA","effort":1,"nl":0,"bac":2800,"hist":[]},{"id":"X4","act":"X","title":"Launch fixes","role":"DEV","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"Y1","act":"Y","title":"Daily checks and quick fixes","role":"DEV","effort":4,"nl":0,"bac":14000,"hist":[]},{"id":"Y2","act":"Y","title":"Production monitoring","role":"OPS","effort":2,"nl":0,"bac":7600,"hist":[]},{"id":"Y3","act":"Y","title":"Hypercare testing","role":"QA","effort":1,"nl":0,"bac":2800,"hist":[]},{"id":"Y4","act":"Y","title":"Support handover","role":"PM","effort":2,"nl":0,"bac":7000,"hist":[]},{"id":"Z1","act":"Z","title":"Acceptance certificate","role":"PM","effort":1,"nl":0,"bac":3500,"hist":[]},{"id":"Z2","act":"Z","title":"Lessons learned","role":"BA","effort":1,"nl":0,"bac":3000,"hist":[]},{"id":"Z3","act":"Z","title":"Final report and archive","role":"PM","effort":3,"nl":0,"bac":10500,"hist":[]}]};
+const COLS = [
+  { id: 'backlog', name: 'Backlog', wip: null },
+  { id: 'ready', name: 'Ready', wip: 6 },
+  { id: 'doing', name: 'In progress', wip: 5 },
+  { id: 'review', name: 'Review / Test', wip: 3 },
+  { id: 'done', name: 'Done', wip: null },
+];
+const ACTIVE = new Set(['doing', 'review']);
+const KEY = 'shopease-board-v1';
+const $ = (s) => document.querySelector(s);
+const rs = (n) => { const neg = n < 0; let s = Math.round(Math.abs(n)).toString(); if (s.length > 3) { let h = s.slice(0, -3), t = s.slice(-3), p = []; while (h.length > 2) { p.unshift(h.slice(-2)); h = h.slice(0, -2); } if (h) p.unshift(h); s = p.join(',') + ',' + t; } return (neg ? '-' : '') + 'Rs ' + s; };
+const f2 = (n) => (isFinite(n) ? n.toFixed(2) : '-');
+const f1 = (n) => (isFinite(n) ? n.toFixed(1) : '-');
+
+// ---------- calendar (working days, holidays) ----------
+const HOL = new Set(DATA.holidays);
+const toD = (s) => new Date(s + 'T00:00:00Z');
+const toS = (d) => d.toISOString().slice(0, 10);
+const addDays = (s, n) => { const d = toD(s); d.setUTCDate(d.getUTCDate() + n); return toS(d); };
+const isWork = (s) => { const w = toD(s).getUTCDay(); return w > 0 && w < 6 && !HOL.has(s); };
+function wdBetween(a, b) { if (b < a) return 0; let n = 0; for (let s = a; s <= b; s = addDays(s, 1)) if (isWork(s)) n++; return n; }
+function nextWork(s) { let d = addDays(s, 1); while (!isWork(d)) d = addDays(d, 1); return d; }
+function lastWorkOnOrBefore(s) { let d = s; while (!isWork(d)) d = addDays(d, -1); return d; }
+const fmt = (s) => toD(s).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', timeZone: 'UTC' });
+const fmtY = (s) => toD(s).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+const weekNo = (s) => Math.floor((toD(s) - toD(DATA.week1)) / 864e5 / 7) + 1;
+const weekStart = (n) => addDays(DATA.week1, 7 * (n - 1));
+
+// ---------- state ----------
+const ACTS = Object.fromEntries(DATA.acts.map((a) => [a.id, a]));
+const TASKS = DATA.tasks;
+const BAC = DATA.acts.reduce((s, a) => s + a.bac, 0) + DATA.loe.bac;
+function seed() {
+  return { status: DATA.status, hist: Object.fromEntries(TASKS.map((t) => [t.id, t.hist.map((h) => h.slice())])), raci: Object.fromEntries(DATA.acts.map((a) => [a.id, a.raci])) };
+}
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)) || seed(); } catch (e) { S = seed(); }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage not available */ } }
+
+// column of a task at the end of a date
+function colAt(id, date) { let c = 'backlog'; for (const [d, to] of S.hist[id]) { if (d <= date) c = to; } return c; }
+// working days a task was being worked on (In progress or Review) up to a date
+function activeDays(id, date) {
+  let n = 0, open = null;
+  for (const [d, to] of S.hist[id]) {
+    if (d > date) break;
+    if (ACTIVE.has(to)) { if (open === null) open = d; }
+    else if (open !== null) { n += to === 'done' ? wdBetween(open, d) : wdBetween(open, addDays(d, -1)); open = null; }
+  }
+  if (open !== null) n += wdBetween(open, date);
+  return n;
+}
+function firstEntry(id, col) { const e = S.hist[id].find((h) => h[1] === col); return e ? e[0] : null; }
+function doneDate(id) { const h = S.hist[id]; return h.length && h[h.length - 1][1] === 'done' ? h[h.length - 1][0] : null; }
+const TASK = Object.fromEntries(TASKS.map((t) => [t.id, t]));
+const rate = (role) => DATA.rates[role];
+
+// ---------- earned value ----------
+function pvAct(a, date) { if (date < a.bs) return 0; const tot = wdBetween(a.bs, a.bf); return a.bac * Math.min(1, wdBetween(a.bs, date < a.bf ? date : a.bf) / tot); }
+function evm(date) {
+  let pv = 0, ev = 0, ac = 0; const per = {};
+  for (const a of DATA.acts) per[a.id] = { pv: pvAct(a, date), ev: 0, ac: 0, done: 0, n: 0 };
+  for (const t of TASKS) {
+    const c = colAt(t.id, date), p = per[t.act]; p.n++;
+    // labour earns 0 / 50 / 100 % (50/50 rule); a purchase (non-labour) is paid and earned when the task is done
+    if (c === 'done') { p.ev += t.bac; p.done++; } else if (ACTIVE.has(c)) p.ev += (t.bac - t.nl) * 0.5;
+    const days = activeDays(t.id, date);
+    p.ac += days * rate(t.role) + (c === 'done' ? t.nl : 0);
+  }
+  for (const a of DATA.acts) { pv += per[a.id].pv; ev += per[a.id].ev; ac += per[a.id].ac; }
+  const loe = pvAct(DATA.loe, date);   // level of effort: earns what is planned
+  pv += loe; ev += loe; ac += loe;
+  const cv = ev - ac, sv = ev - pv, cpi = ac ? ev / ac : NaN, spi = pv ? ev / pv : NaN;
+  const eac = cpi ? BAC / cpi : NaN;
+  return { date, pv, ev, ac, cv, sv, cpi, spi, eac, etc: eac - ac, vac: BAC - eac, tcpi: (BAC - ev) / (BAC - ac),
+    eac2: ac + (BAC - ev), eac3: ac + (BAC - ev) / (cpi * spi), pct: ev / BAC, per, loe };
+}
+
+// ---------- flow metrics ----------
+function flow(date) {
+  const finished = TASKS.filter((t) => colAt(t.id, date) === 'done').map((t) => {
+    const st = firstEntry(t.id, 'doing') || doneDate(t.id), rd = firstEntry(t.id, 'ready') || st, dd = doneDate(t.id);
+    return { id: t.id, done: dd, cycle: wdBetween(st, dd), lead: wdBetween(rd, dd), effort: t.effort };
+  }).filter((x) => x.done && x.done <= date);
+  const cyc = finished.map((x) => x.cycle).sort((a, b) => a - b);
+  const avg = (arr) => arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : NaN;
+  const p85 = cyc.length ? cyc[Math.min(cyc.length - 1, Math.ceil(0.85 * cyc.length) - 1)] : NaN;
+  const count = (c) => TASKS.filter((t) => colAt(t.id, date) === c).length;
+  const wip = count('doing') + count('review');
+  const wk = weekNo(date);
+  const weeks = [];
+  for (let w = 1; w <= wk; w++) {
+    const a = weekStart(w), b = addDays(a, 6);
+    const fin = finished.filter((x) => x.done >= a && x.done <= b);
+    weeks.push({ w, start: a, tasks: fin.length, effort: fin.reduce((s, x) => s + x.effort, 0), workdays: wdBetween(a, b) });
+  }
+  const last = weeks.filter((x) => x.workdays > 0).slice(-3);
+  const thrWeek = last.length ? last.reduce((s, x) => s + x.tasks, 0) / last.length : NaN;
+  const velocity = last.length ? last.reduce((s, x) => s + x.effort, 0) / last.length : NaN;
+  const days = wdBetween(DATA.start, date);
+  const thrDay = days ? finished.length / days : NaN;
+  const remainingTasks = TASKS.length - finished.length;
+  const remainingEffort = TASKS.filter((t) => colAt(t.id, date) !== 'done').reduce((s, t) => s + t.effort, 0);
+  return { finished, avgCycle: avg(cyc), p85, avgLead: avg(finished.map((x) => x.lead)), wip, queue: count('ready'), backlog: count('backlog'),
+    done: finished.length, thrWeek, thrDay, velocity, weeks, littleCycle: wip / thrDay, remainingTasks, remainingEffort,
+    weeksLeft: remainingEffort / velocity, counts: Object.fromEntries(COLS.map((c) => [c.id, count(c.id)])) };
+}
+
+// ---------- rendering ----------
+const filters = { act: '', role: '', crit: false };
+function cls(v, good, warn) { return v >= good ? 'good' : v >= warn ? 'warn' : 'bad'; }
+function renderKpis(E, F) {
+  const k = [
+    ['WIP (in progress + review)', F.wip, `limit ${COLS[2].wip + COLS[3].wip}`],
+    ['Queue (Ready)', F.queue, `limit ${COLS[1].wip}`],
+    ['Throughput', f1(F.thrWeek), 'tasks / week (last 3 wks)'],
+    ['Velocity', f1(F.velocity), 'person-days / week'],
+    ['Avg cycle time', f1(F.avgCycle), `days; 85th pct ${F.p85 || '-'}`],
+    ['Avg lead time', f1(F.avgLead), 'working days'],
+    ['SPI', `<span class="${cls(E.spi, 0.95, 0.9)}">${f2(E.spi)}</span>`, `SV ${rs(E.sv)}`],
+    ['CPI', `<span class="${cls(E.cpi, 0.95, 0.9)}">${f2(E.cpi)}</span>`, `CV ${rs(E.cv)}`],
+    ['EAC', rs(E.eac).replace('Rs ', 'Rs&nbsp;'), `VAC ${rs(E.vac)}`],
+    ['% complete', Math.round(E.pct * 100) + '%', `${F.done} of ${TASKS.length} tasks done`],
+  ];
+  $('#kpis').innerHTML = k.map(([a, b, c]) => `<div class="kpi"><span>${a}</span><b>${b}</b><small>${c}</small></div>`).join('');
+}
+function cardHtml(t, date) {
+  const a = ACTS[t.act], c = colAt(t.id, date);
+  let age = '';
+  if (ACTIVE.has(c)) { const d = activeDays(t.id, date); age = `<span class="age ${d > t.effort * 1.5 ? 'a3' : d > t.effort ? 'a2' : ''}" title="Working days in progress (planned ${t.effort})">${d}d / ${t.effort}d</span>`; }
+  else if (c === 'done') { const st = firstEntry(t.id, 'doing') || doneDate(t.id); age = `<span title="Cycle time">${wdBetween(st, doneDate(t.id))}d</span>`; }
+  else age = `<span title="Planned effort">${t.effort}d</span>`;
+  const i = COLS.findIndex((x) => x.id === c);
+  return `<div class="card ${a.crit ? 'crit' : ''}" draggable="true" data-id="${t.id}">
+    <div class="meta"><span class="tag" title="${a.name}">${t.act} &middot; ${t.id}</span><span class="role">${t.role}</span></div>
+    <div class="t">${t.title}</div>
+    <div class="meta"><span>${rs(t.bac)} &middot; ${age}</span><span class="mv">${i > 0 ? `<button data-mv="-1" data-id="${t.id}" title="Move left">&larr;</button>` : ''}${i < COLS.length - 1 ? `<button data-mv="1" data-id="${t.id}" title="Move right">&rarr;</button>` : ''}</span></div>
+  </div>`;
+}
+const showAll = { backlog: false, done: false };
+function renderBoard(date) {
+  const vis = TASKS.filter((t) => (!filters.act || t.act === filters.act) && (!filters.role || t.role === filters.role) && (!filters.crit || ACTS[t.act].crit));
+  $('#board').innerHTML = COLS.map((c) => {
+    let list = vis.filter((t) => colAt(t.id, date) === c.id);
+    const total = TASKS.filter((t) => colAt(t.id, date) === c.id).length;
+    if (c.id === 'done') list = list.sort((x, y) => (doneDate(y.id) || '').localeCompare(doneDate(x.id) || ''));
+    const limit = 12, cut = (c.id === 'backlog' || c.id === 'done') && !showAll[c.id] && list.length > limit;
+    const shown = cut ? list.slice(0, limit) : list;
+    const over = c.wip && total > c.wip;
+    return `<div class="col ${over ? 'over' : ''}" data-col="${c.id}">
+      <div class="colhead"><span>${c.name}</span><small>${total}${c.wip ? ' / ' + c.wip : ''}</small></div>
+      <div class="cards">${shown.map((t) => cardHtml(t, date)).join('')}${cut ? `<div class="more" data-more="${c.id}">Show ${list.length - limit} more</div>` : ''}</div></div>`;
+  }).join('');
+}
+function move(id, to) {
+  const date = S.status, from = colAt(id, date);
+  if (from === to) return;
+  const col = COLS.find((c) => c.id === to);
+  const n = TASKS.filter((t) => colAt(t.id, date) === to).length;
+  if (col.wip && n >= col.wip) { toast(`WIP limit reached in "${col.name}" (${col.wip}). Finish work before starting more.`); return; }
+  if (!isWork(date)) { toast('The status date is not a working day. Use "Next working day" first.'); return; }
+  const h = S.hist[id];
+  while (h.length && h[h.length - 1][0] > date) h.pop();   // moving back in time rewrites later history
+  h.push([date, to]);
+  save(); render();
+  const E = evm(date);
+  toast(`${id} moved to ${col.name}. SPI ${f2(E.spi)}, CPI ${f2(E.cpi)}, EAC ${rs(E.eac)}`);
+}
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2600); }
+
+// ---------- charts (plain SVG) ----------
+function axisChart({ w = 640, h = 280, xmin, xmax, ymin = 0, ymax, ysteps = 5, xticks, xlab, ylab, yfmt = (v) => v, series = [], bars = [], areas = [], hlines = [], vlines = [] }) {
+  const L = 58, R = 14, T = 12, B = 34, pw = w - L - R, ph = h - T - B;
+  const X = (x) => L + (x - xmin) / (xmax - xmin || 1) * pw, Y = (y) => T + ph - (y - ymin) / (ymax - ymin || 1) * ph;
+  let o = `<svg viewBox="0 0 ${w} ${h}" width="100%" role="img">`;
+  for (let i = 0; i <= ysteps; i++) { const v = ymin + (ymax - ymin) * i / ysteps; o += `<line x1="${L}" x2="${L + pw}" y1="${Y(v)}" y2="${Y(v)}" stroke="#ebecf0"/><text x="${L - 6}" y="${Y(v) + 4}" font-size="10" text-anchor="end" fill="#5e6c84">${yfmt(v)}</text>`; }
+  for (const [x, lab] of xticks) o += `<line x1="${X(x)}" x2="${X(x)}" y1="${T + ph}" y2="${T + ph + 4}" stroke="#8993a4"/><text x="${X(x)}" y="${T + ph + 15}" font-size="10" text-anchor="middle" fill="#5e6c84">${lab}</text>`;
+  for (const a of areas) { const pts = a.top.map(([x, y]) => `${X(x)},${Y(y)}`).concat(a.bot.slice().reverse().map(([x, y]) => `${X(x)},${Y(y)}`)).join(' '); o += `<polygon points="${pts}" fill="${a.color}" opacity=".85"/>`; }
+  for (const b of bars) o += `<rect x="${X(b.x) - b.w / 2}" y="${Y(b.y)}" width="${b.w}" height="${Math.max(0, Y(0) - Y(b.y))}" fill="${b.color}"/>`;
+  for (const s of series) {
+    if (s.points) o += `<polyline points="${s.points.map(([x, y]) => `${X(x)},${Y(y)}`).join(' ')}" fill="none" stroke="${s.color}" stroke-width="${s.width || 2}" stroke-dasharray="${s.dash || ''}"/>`;
+    if (s.dots) for (const [x, y, tip] of s.dots) o += `<circle cx="${X(x)}" cy="${Y(y)}" r="4" fill="${s.color}" opacity=".75"><title>${tip || ''}</title></circle>`;
+  }
+  for (const l of hlines) o += `<line x1="${L}" x2="${L + pw}" y1="${Y(l.y)}" y2="${Y(l.y)}" stroke="${l.color}" stroke-dasharray="5,4"/><text x="${l.left ? L + 6 : L + pw - 4}" y="${Y(l.y) + (l.below ? 13 : -4)}" font-size="10" text-anchor="${l.left ? 'start' : 'end'}" fill="${l.color}">${l.label}</text>`;
+  for (const l of vlines) o += `<line x1="${X(l.x)}" x2="${X(l.x)}" y1="${T}" y2="${T + ph}" stroke="${l.color}" stroke-dasharray="3,3"/><text x="${X(l.x) + 4}" y="${T + 10}" font-size="10" fill="${l.color}">${l.label}</text>`;
+  o += `<line x1="${L}" x2="${L}" y1="${T}" y2="${T + ph}" stroke="#8993a4"/><line x1="${L}" x2="${L + pw}" y1="${T + ph}" y2="${T + ph}" stroke="#8993a4"/>`;
+  o += `<text x="${L + pw / 2}" y="${h - 4}" font-size="11" text-anchor="middle" fill="#172b4d">${xlab}</text><text x="12" y="${T + ph / 2}" font-size="11" text-anchor="middle" fill="#172b4d" transform="rotate(-90 12 ${T + ph / 2})">${ylab}</text></svg>`;
+  return o;
+}
+const dayIndex = (s) => (toD(s) - toD(DATA.start)) / 864e5;
+function renderFlow(date, F) {
+  const days = []; for (let s = DATA.start; s <= date; s = addDays(s, 1)) if (isWork(s)) days.push(s);
+  const order = ['done', 'review', 'doing', 'ready'], colors = { done: '#94c748', review: '#f5cd47', doing: '#579dff', ready: '#c9a6ff' };
+  const stacks = days.map((d) => { const c = { backlog: 0, ready: 0, doing: 0, review: 0, done: 0 }; for (const t of TASKS) c[colAt(t.id, d)]++; return c; });
+  const areas = []; let base = days.map(() => 0);
+  for (const k of order) { const top = stacks.map((c, i) => base[i] + c[k]); areas.push({ color: colors[k], bot: days.map((d, i) => [dayIndex(d), base[i]]), top: days.map((d, i) => [dayIndex(d), top[i]]) }); base = top; }
+  const xmax = Math.max(dayIndex(date), 7), ymaxC = Math.max(10, Math.ceil(Math.max(...base, 1) / 5) * 5);
+  const xt = []; for (let w = 1; w <= weekNo(date); w += 1) { const s = weekStart(w); if (dayIndex(s) >= 0 || w === 1) xt.push([Math.max(0, dayIndex(s)), 'W' + w]); }
+  $('#cfd').innerHTML = axisChart({ xmin: 0, xmax, ymax: ymaxC, xticks: xt, xlab: 'Project week', ylab: 'Tasks', areas }) +
+    `<div class="legend">${order.map((k) => `<span><i style="background:${colors[k]};height:10px"></i>${COLS.find((c) => c.id === k).name}</span>`).join('')}</div>`;
+  const dots = F.finished.map((x) => [dayIndex(x.done), x.cycle, `${x.id}: ${x.cycle} days`]);
+  const ymaxT = Math.ceil(Math.max(8, ...F.finished.map((x) => x.cycle + 1)) / 5) * 5;
+  $('#ctChart').innerHTML = axisChart({ xmin: 0, xmax, ymax: ymaxT, xticks: xt, xlab: 'Date finished (project week)', ylab: 'Cycle time (working days)', series: [{ color: '#0c66e4', dots }],
+    hlines: isFinite(F.avgCycle) ? [{ y: F.avgCycle, color: '#1f845a', label: `average ${f1(F.avgCycle)}` }, { y: F.p85, color: '#c9372c', label: `85th percentile ${F.p85}` }] : [] });
+  const W = F.weeks, ymaxW = Math.max(6, ...W.map((x) => x.tasks), ...W.map((x) => x.effort / 3));
+  $('#tpChart').innerHTML = axisChart({ xmin: 0.4, xmax: W.length + 0.6, ymax: Math.ceil(ymaxW / 5) * 5, xticks: W.map((x) => [x.w, 'W' + x.w]), xlab: 'Project week', ylab: 'Tasks finished  |  person-days / 3',
+    bars: W.map((x) => ({ x: x.w, y: x.tasks, w: 18, color: '#579dff' })), series: [{ color: '#b65c02', points: W.map((x) => [x.w, x.effort / 3]) }] }) +
+    `<div class="legend"><span><i style="background:#579dff;height:10px"></i>Throughput (tasks)</span><span><i style="background:#b65c02"></i>Velocity (person-days, shown / 3)</span></div>`;
+  const rows = [
+    ['Tasks finished / total', `${F.done} / ${TASKS.length}`],
+    ['Work in progress (In progress + Review)', F.wip], ['Queue size (Ready)', F.queue], ['Backlog', F.backlog],
+    ['Average cycle time', `${f1(F.avgCycle)} working days`], ['85th percentile cycle time', `${F.p85 || '-'} working days`],
+    ['Average lead time (Ready to Done)', `${f1(F.avgLead)} working days`],
+    ['Throughput (last 3 weeks)', `${f1(F.thrWeek)} tasks / week`], ['Throughput since start', `${f2(F.thrDay)} tasks / working day`],
+    ["Little's law: WIP / throughput", `${f1(F.littleCycle)} working days (compare with average cycle time)`],
+    ['Velocity (last 3 weeks)', `${f1(F.velocity)} person-days / week`],
+    ['Remaining planned effort', `${F.remainingEffort} person-days`],
+    ['Flow forecast at current velocity', isFinite(F.weeksLeft) ? `${f1(F.weeksLeft)} weeks of work left` : '-'],
+  ];
+  $('#flowTable').innerHTML = `<table>${rows.map(([a, b]) => `<tr><th>${a}</th><td>${b}</td></tr>`).join('')}</table>`;
+}
+function renderEvm(date, E) {
+  // PV for the whole baseline, EV and AC up to the status date (weekly points + status date)
+  const end = DATA.loe.bf > DATA.acts[DATA.acts.length - 1].bf ? DATA.loe.bf : DATA.acts[DATA.acts.length - 1].bf;
+  const nW = weekNo(end), pvPts = [[0, 0]], evPts = [[0, 0]], acPts = [[0, 0]];
+  for (let w = 1; w <= nW; w++) { const d = addDays(weekStart(w), 6); pvPts.push([w, evm(d).pv]); }
+  const sw = weekNo(date);
+  for (let w = 1; w < sw; w++) { const d = addDays(weekStart(w), 6); const e = evm(d); evPts.push([w, e.ev]); acPts.push([w, e.ac]); }
+  const xs = sw - 1 + (wdBetween(weekStart(sw), date) / Math.max(1, wdBetween(weekStart(sw), addDays(weekStart(sw), 6))));
+  evPts.push([xs, E.ev]); acPts.push([xs, E.ac]);
+  const ymax = Math.ceil(Math.max(BAC, E.eac) * 1.05 / 200000) * 200000;
+  const xt = []; for (let w = 0; w <= nW; w += 2) xt.push([w, w ? 'W' + w : '0']);
+  $('#scurve').innerHTML = axisChart({ w: 900, h: 320, xmin: 0, xmax: nW, ymax, ysteps: ymax / 200000, xticks: xt, xlab: 'Project week (end of week)', ylab: 'Cumulative cost (Rs lakh)', yfmt: (v) => (v / 1e5).toFixed(0),
+    series: [{ points: pvPts, color: '#172b4d' }, { points: evPts, color: '#1f845a', width: 2.5 }, { points: acPts, color: '#c9372c', dash: '6,4', width: 2.5 }],
+    hlines: [{ y: BAC, color: '#5e6c84', label: `BAC ${rs(BAC)}`, left: true, below: E.eac > BAC }, { y: E.eac, color: '#c9372c', label: `EAC ${rs(E.eac)}`, below: E.eac < BAC }], vlines: [{ x: xs, color: '#0c66e4', label: 'status date' }] }) +
+    `<div class="legend"><span><i style="background:#172b4d"></i>Planned value (PV)</span><span><i style="background:#1f845a"></i>Earned value (EV)</span><span><i style="background:#c9372c"></i>Actual cost (AC)</span></div>`;
+  const spiPts = [], cpiPts = [];
+  for (let w = 1; w < sw; w++) { const e = evm(addDays(weekStart(w), 6)); if (isFinite(e.spi)) spiPts.push([w, e.spi]); if (isFinite(e.cpi)) cpiPts.push([w, e.cpi]); }
+  spiPts.push([xs, E.spi]); cpiPts.push([xs, E.cpi]);
+  const clip = (pts) => pts.map(([x, y]) => [x, Math.min(1.3, Math.max(0.7, y)), y]);
+  const nx = Math.max(sw, 4);
+  $('#idxChart').innerHTML = axisChart({ w: 640, h: 240, xmin: 0, xmax: nx, ymin: 0.7, ymax: 1.3, ysteps: 6, xticks: Array.from({ length: nx + 1 }, (_, w) => [w, w ? 'W' + w : '0']),
+    xlab: 'Project week', ylab: 'Index', yfmt: (v) => v.toFixed(1),
+    series: [{ points: clip(spiPts), color: '#0c66e4', dots: clip(spiPts).map(([x, y, v]) => [x, y, 'SPI ' + v.toFixed(2)]) }, { points: clip(cpiPts), color: '#b65c02', dots: clip(cpiPts).map(([x, y, v]) => [x, y, 'CPI ' + v.toFixed(2)]) }],
+    hlines: [{ y: 1, color: '#1f845a', label: '1.00 = as planned' }, { y: 0.9, color: '#c9372c', label: 'action threshold 0.90' }] }) +
+    `<div class="legend"><span><i style="background:#0c66e4"></i>SPI</span><span><i style="background:#b65c02"></i>CPI</span></div>`;
+  const R = (a, b, c) => `<tr><th>${a}</th><td class="n">${b}</td><td>${c}</td></tr>`;
+  $('#evmTable').innerHTML = `<table><tr><th>Measure</th><th class="n">Value</th><th>Formula / meaning</th></tr>
+    ${R('Status date', fmtY(date), 'progress recorded up to this date')}
+    ${R('Budget at completion (BAC)', rs(BAC), 'work package total from the cost baseline')}
+    ${R('Planned value (PV)', rs(E.pv), 'budgeted cost of work scheduled')}
+    ${R('Earned value (EV)', rs(E.ev), 'budget of work done: Done 100%, In progress/Review 50% (50/50 rule)')}
+    ${R('Actual cost (AC)', rs(E.ac), 'working days spent x daily rate + purchases paid')}
+    ${R('Schedule variance (SV)', rs(E.sv), 'EV - PV')}
+    ${R('Cost variance (CV)', rs(E.cv), 'EV - AC')}
+    ${R('SPI', `<b class="${cls(E.spi, 0.95, 0.9)}">${f2(E.spi)}</b>`, 'EV / PV (below 1 = behind schedule)')}
+    ${R('CPI', `<b class="${cls(E.cpi, 0.95, 0.9)}">${f2(E.cpi)}</b>`, 'EV / AC (below 1 = over cost)')}
+    ${R('EAC (typical)', rs(E.eac), 'BAC / CPI')}
+    ${R('EAC (atypical)', rs(E.eac2), 'AC + (BAC - EV)')}
+    ${R('EAC (schedule and cost)', rs(E.eac3), 'AC + (BAC - EV) / (CPI x SPI)')}
+    ${R('ETC', rs(E.etc), 'EAC - AC')}
+    ${R('VAC', rs(E.vac), 'BAC - EAC')}
+    ${R('TCPI', f2(E.tcpi), '(BAC - EV) / (BAC - AC), efficiency needed for the rest')}
+    ${R('Percent complete', Math.round(E.pct * 100) + '%', 'EV / BAC')}</table>`;
+  const rows = DATA.acts.filter((a) => E.per[a.id].pv > 0 || E.per[a.id].ev > 0 || E.per[a.id].ac > 0).map((a) => {
+    const p = E.per[a.id]; return `<tr><td>${a.id} ${a.name}</td><td class="n">${rs(p.pv)}</td><td class="n">${rs(p.ev)}</td><td class="n">${rs(p.ac)}</td><td class="n">${f2(p.pv ? p.ev / p.pv : NaN)}</td><td class="n">${f2(p.ac ? p.ev / p.ac : NaN)}</td></tr>`; });
+  $('#actTable').innerHTML = `<table><tr><th>Activity</th><th class="n">PV</th><th class="n">EV</th><th class="n">AC</th><th class="n">SPI</th><th class="n">CPI</th></tr>${rows.join('')}
+    <tr><td>Monitoring (level of effort)</td><td class="n">${rs(E.loe)}</td><td class="n">${rs(E.loe)}</td><td class="n">${rs(E.loe)}</td><td class="n">1.00</td><td class="n">1.00</td></tr></table>`;
+}
+function raciErrors() {
+  const errs = [];
+  for (const a of DATA.acts) { const v = S.raci[a.id]; const nA = [...v].filter((x) => x === 'A').length, nR = [...v].filter((x) => x === 'R').length;
+    if (nA !== 1) errs.push(`${a.id}: ${nA} accountable`); if (nR < 1) errs.push(`${a.id}: no responsible role`); }
+  return errs;
+}
+function renderRaci() {
+  const roles = DATA.roles;
+  let o = `<tr><th>Activity</th>${roles.map((r) => `<th title="${DATA.roleNames[r]}">${r}</th>`).join('')}</tr>`;
+  for (const a of DATA.acts) {
+    const v = S.raci[a.id]; const nA = [...v].filter((x) => x === 'A').length, nR = [...v].filter((x) => x === 'R').length;
+    o += `<tr class="${nA !== 1 || nR < 1 ? 'err' : ''}"><td class="lbl">${a.id} ${a.name}</td>${[...v].map((x, k) => `<td class="${x}" data-a="${a.id}" data-k="${k}">${x === '-' ? '' : x}</td>`).join('')}</tr>`;
+  }
+  o += `<tr><td class="lbl" colspan="${roles.length + 1}">${roles.map((r) => `<b>${r}</b> = ${DATA.roleNames[r]}`).join(' &middot; ')}</td></tr>`;
+  $('#raci').innerHTML = o;
+  const e = raciErrors();
+  $('#raciCheck').innerHTML = e.length ? `<span class="bad">Structural errors: ${e.length} (${e.join('; ')})</span>` : '<span class="good">Structural errors: 0. Every activity has exactly one A and at least one R.</span>';
+}
+function openCard(id) {
+  const t = TASK[id], a = ACTS[t.act], date = S.status, c = colAt(id, date), days = activeDays(id, date);
+  const ac = days * rate(t.role) + (c === 'done' ? t.nl : 0), ev = c === 'done' ? t.bac : ACTIVE.has(c) ? (t.bac - t.nl) / 2 : 0;
+  $('#drawer').innerHTML = `<button id="closeD" style="float:right">Close</button><span class="tag">${t.act} &middot; ${t.id}</span><h3>${t.title}</h3>
+    <dl><dt>Activity</dt><dd>${a.id} ${a.name} (WBS ${a.wbs})${a.crit ? ' <b class="bad">critical path</b>' : ''}</dd>
+    <dt>Responsible role</dt><dd>${DATA.roleNames[t.role]}</dd>
+    <dt>Accountable</dt><dd>${DATA.roleNames[DATA.roles[S.raci[t.act].indexOf('A')]]}</dd>
+    <dt>Column</dt><dd>${COLS.find((x) => x.id === c).name}</dd>
+    <dt>Planned effort</dt><dd>${t.effort} person-days</dd><dt>Days worked</dt><dd>${days}</dd>
+    <dt>Budget (BAC)</dt><dd>${rs(t.bac)}</dd><dt>Earned value</dt><dd>${rs(ev)}</dd><dt>Actual cost</dt><dd>${rs(ac)}</dd>
+    <dt>Activity baseline</dt><dd>${fmt(a.bs)} to ${fmt(a.bf)}</dd></dl>
+    <b>History</b><table>${S.hist[id].map(([d, to]) => `<tr><td>${fmtY(d)}</td><td>${COLS.find((x) => x.id === to).name}</td></tr>`).join('') || '<tr><td>No moves yet</td></tr>'}</table>`;
+  $('#drawer').classList.add('open');
+  $('#closeD').onclick = () => $('#drawer').classList.remove('open');
+}
+function render() {
+  const date = S.status; $('#status').value = date;
+  const E = evm(date), F = flow(date);
+  renderKpis(E, F); renderBoard(date);
+  if (!$('#tab-flow').hidden) renderFlow(date, F);
+  if (!$('#tab-evm').hidden) renderEvm(date, E);
+  if (!$('#tab-raci').hidden) renderRaci();
+}
+
+// ---------- events ----------
+$('#fAct').innerHTML += DATA.acts.map((a) => `<option value="${a.id}">${a.id} ${a.name}</option>`).join('');
+$('#fRole').innerHTML += [...new Set(TASKS.map((t) => t.role))].map((r) => `<option>${r}</option>`).join('');
+$('#fAct').onchange = (e) => { filters.act = e.target.value; render(); };
+$('#fRole').onchange = (e) => { filters.role = e.target.value; render(); };
+$('#fCrit').onchange = (e) => { filters.crit = e.target.checked; render(); };
+$('#status').onchange = (e) => { if (e.target.value) { S.status = e.target.value; save(); render(); } };
+$('#nextDay').onclick = () => { S.status = nextWork(S.status); save(); render(); };
+$('#resetBtn').onclick = () => { if (confirm('Reset the board to the baseline data? Your moves will be removed.')) { S = seed(); save(); render(); } };
+$('#exportBtn').onclick = () => { const b = new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' }); const u = URL.createObjectURL(b); const l = document.createElement('a'); l.href = u; l.download = `shopease-board-${S.status}.json`; l.click(); URL.revokeObjectURL(u); };
+$('#tabs').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x === b));
+  for (const t of ['board', 'flow', 'evm', 'raci']) $('#tab-' + t).hidden = t !== b.dataset.tab; render(); };
+const board = $('#board');
+board.addEventListener('click', (e) => {
+  const m = e.target.closest('[data-mv]');
+  if (m) { const id = m.dataset.id, i = COLS.findIndex((c) => c.id === colAt(id, S.status)); move(id, COLS[i + +m.dataset.mv].id); return; }
+  const more = e.target.closest('[data-more]'); if (more) { showAll[more.dataset.more] = true; render(); return; }
+  const c = e.target.closest('.card'); if (c) openCard(c.dataset.id);
+});
+let dragId = null;
+board.addEventListener('dragstart', (e) => { const c = e.target.closest('.card'); if (c) { dragId = c.dataset.id; e.dataTransfer.effectAllowed = 'move'; } });
+board.addEventListener('dragover', (e) => { const col = e.target.closest('.col'); if (col) { e.preventDefault(); col.classList.add('drop'); } });
+board.addEventListener('dragleave', (e) => { const col = e.target.closest('.col'); if (col) col.classList.remove('drop'); });
+board.addEventListener('drop', (e) => { const col = e.target.closest('.col'); if (col && dragId) { e.preventDefault(); move(dragId, col.dataset.col); dragId = null; } });
+$('#raci').addEventListener('click', (e) => { const td = e.target.closest('td[data-a]'); if (!td) return; const seq = ['-', 'R', 'A', 'C', 'I'];
+  const v = [...S.raci[td.dataset.a]]; v[+td.dataset.k] = seq[(seq.indexOf(v[+td.dataset.k]) + 1) % seq.length]; S.raci[td.dataset.a] = v.join(''); save(); render(); });
+window.kb = { evm: (d) => evm(d || S.status), flow: (d) => flow(d || S.status), move, state: () => S, reset: () => { S = seed(); save(); render(); }, raciErrors };
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShopEase Risk Register</title>
+<style>
+:root { --line: #dfe1e6; --text: #172b4d; --text2: #5e6c84; --text3: #8993a4; --blue: #0c66e4; --green: #1f845a; --amber: #b65c02; --red: #c9372c; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 14px/1.4 "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; color: var(--text); background: #f4f5f7; }
+header { background: #fff; border-bottom: 1px solid var(--line); padding: 10px 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+header h1 { font-size: 17px; margin: 0; font-weight: 600; }
+header .sub { font-size: 12px; color: var(--text2); }
+.controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+button, select, input, textarea { font: inherit; color: var(--text); }
+button { padding: 6px 12px; border: 1px solid var(--line); border-radius: 4px; background: #fff; cursor: pointer; }
+button:hover { background: #f1f2f4; }
+button.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+nav { display: flex; gap: 2px; padding: 0 20px; background: #fff; border-bottom: 1px solid var(--line); }
+nav button { border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 10px 14px; color: var(--text2); background: none; }
+nav button.on { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
+main { padding: 16px 20px 40px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.kpi { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; }
+.kpi > span { display: block; font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: .03em; }
+.kpi b { font-size: 18px; font-weight: 600; }
+.kpi small { display: block; font-size: 11px; color: var(--text3); }
+.panel { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; margin-bottom: 14px; }
+.panel h2 { font-size: 15px; margin: 0 0 4px; }
+.note { font-size: 12px; color: var(--text2); margin: 0 0 10px; }
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--text2); margin-bottom: 10px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; padding: 5px 10px; }
+.seg button.on { background: var(--blue); color: #fff; }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; background: #fff; }
+th, td { border: 1px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: middle; }
+th { background: #f7f8f9; font-weight: 600; position: sticky; top: 0; z-index: 1; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+td input[type=number] { width: 78px; padding: 3px 4px; border: 1px solid var(--line); border-radius: 3px; text-align: right; }
+td select { padding: 3px; border: 1px solid var(--line); border-radius: 3px; max-width: 120px; }
+td.title { cursor: pointer; color: var(--blue); min-width: 220px; }
+.score { display: inline-block; min-width: 28px; text-align: center; font-weight: 700; border-radius: 3px; padding: 1px 4px; }
+.zH { background: #ffd5d2; color: #ae2e24; } .zM { background: #fff3c4; color: #7f5f01; } .zL { background: #dcfff1; color: #216e4e; }
+.oH { background: #c6edfb; color: #164555; } .oM { background: #e0f4fb; color: #206a83; } .oL { background: #f0f7fa; color: #5e6c84; }
+.type-T { color: var(--red); font-weight: 600; } .type-O { color: #206a83; font-weight: 600; }
+.matrices { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.pim { display: grid; grid-template-columns: 34px repeat(5, 1fr); grid-template-rows: repeat(5, minmax(78px, auto)) 34px; gap: 3px; }
+.pim .cell { border-radius: 4px; padding: 4px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 4px; position: relative; }
+.pim .cell .sc { position: absolute; right: 4px; bottom: 2px; font-size: 10px; opacity: .55; }
+.pim .cell.drop { outline: 2px dashed var(--blue); }
+.pim .ylab, .pim .xlab { font-size: 11px; color: var(--text2); display: flex; align-items: center; justify-content: center; text-align: center; }
+.chip { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 10px; background: #fff; border: 1px solid rgba(9,30,66,.3); cursor: grab; }
+.chip:hover { background: #172b4d; color: #fff; }
+.axis-t { font-size: 12px; color: var(--text2); text-align: center; margin-top: 4px; }
+.drawer { position: fixed; top: 0; right: 0; width: 460px; max-width: 100%; height: 100%; background: #fff; box-shadow: -4px 0 16px rgba(9,30,66,.2); padding: 16px 18px; overflow: auto; transform: translateX(100%); transition: transform .15s; z-index: 5; }
+.drawer.open { transform: none; }
+.drawer label { display: block; font-size: 12px; color: var(--text2); margin: 8px 0 2px; }
+.drawer input, .drawer select, .drawer textarea { width: 100%; padding: 5px 7px; border: 1px solid var(--line); border-radius: 4px; }
+.drawer textarea { min-height: 52px; resize: vertical; }
+.drawer .row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.drawer h3 { margin: 2px 0 6px; font-size: 16px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--text2); margin-top: 6px; }
+.legend i { display: inline-block; width: 12px; height: 10px; vertical-align: middle; margin-right: 4px; }
+.toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #172b4d; color: #fff; padding: 8px 14px; border-radius: 4px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; z-index: 9; }
+.toast.show { opacity: 1; }
+.good { color: var(--green); } .warn { color: var(--amber); } .bad { color: var(--red); }
+@media (max-width: 1100px) { .matrices, .grid2 { grid-template-columns: 1fr; } .tablewrap { overflow-x: auto; } }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>ShopEase Online Store: Risk Register</h1>
+    <div class="sub">Risk owner of the process: Abhay Maurya (Project Manager) &middot; Last review: <span id="statusDate"></span></div>
+  </div>
+  <div class="controls">
+    <span class="seg" id="view"><button data-v="inherent" class="on">Before response</button><button data-v="residual">After response</button></span>
+    <button class="primary" id="addT">Add threat</button>
+    <button id="addO">Add opportunity</button>
+    <button id="csvBtn">Export CSV</button>
+    <button id="resetBtn">Reset to baseline data</button>
+  </div>
+</header>
+<nav id="tabs">
+  <button data-tab="register" class="on">Register</button>
+  <button data-tab="matrix">P-I matrix</button>
+  <button data-tab="quant">Quantitative analysis</button>
+  <button data-tab="scales">Scales and rules</button>
+</nav>
+<main>
+  <section class="kpis" id="kpis"></section>
+
+  <section id="tab-register">
+    <div class="toolbar">
+      <label>Type <select id="fType"><option value="">All</option><option>Threat</option><option>Opportunity</option></select></label>
+      <label>Owner <select id="fOwner"><option value="">All</option></select></label>
+      <label>Zone <select id="fZone"><option value="">All</option><option value="H">High</option><option value="M">Medium</option><option value="L">Low</option></select></label>
+      <label>Sort <select id="fSort"><option value="score">Score (high first)</option><option value="emv">EMV (high first)</option><option value="id">ID</option></select></label>
+      <span>Change probability, cost or days and the score, EMV and matrix update at once. Click a title for the full risk record.</span>
+    </div>
+    <div class="tablewrap"><table id="reg"></table></div>
+  </section>
+
+  <section id="tab-matrix" hidden>
+    <div class="panel">
+      <h2>Probability-impact matrix</h2>
+      <p class="note">Each risk is placed by its probability rating (rows) and impact rating (columns); the number in the corner is the score P x I. Drag a risk to another cell to re-rate it, or click it to open the record. Use "Before response" / "After response" at the top to see the effect of the responses.</p>
+      <div class="matrices">
+        <div><h2 style="font-size:14px">Threats</h2><div class="pim" id="pimT"></div><div class="axis-t">Impact &rarr;</div></div>
+        <div><h2 style="font-size:14px">Opportunities</h2><div class="pim" id="pimO"></div><div class="axis-t">Impact (benefit) &rarr;</div></div>
+      </div>
+      <div class="legend"><span><i class="zH"></i>High (score 12 to 25)</span><span><i class="zM"></i>Medium (6 to 11)</span><span><i class="zL"></i>Low (1 to 5)</span></div>
+    </div>
+    <div class="panel"><h2>Top risks by score</h2><div id="top"></div></div>
+  </section>
+
+  <section id="tab-quant" hidden>
+    <div class="grid2">
+      <div class="panel"><h2>Expected monetary value and contingency</h2><p class="note">EMV = probability x cost impact. Threats are positive, opportunities negative. The net EMV is compared with the contingency reserve in the cost baseline.</p><div id="emvTable"></div></div>
+      <div class="panel"><h2>EMV by risk</h2><p class="note">Red bars: threats (cost). Blue bars: opportunities (saving). Grey outline: after response.</p><div id="emvChart"></div></div>
+    </div>
+    <div class="panel">
+      <h2>Monte Carlo simulation of go-live date and cost</h2>
+      <p class="note">Each run samples every activity duration from its three-point (PERT) estimate, lets each risk occur with its probability (delay or gain in its activity, cost added or saved), and recalculates the network with all FS/SS/FF links and lags.</p>
+      <div class="toolbar">
+        <label>Runs <select id="mcN"><option>1000</option><option selected>3000</option><option>10000</option></select></label>
+        <label>Risks <select id="mcMode"><option value="current">As per the view at the top</option><option value="none">Duration uncertainty only</option></select></label>
+        <label>Seed <input id="mcSeed" type="number" value="2026" style="width:80px"></label>
+        <button class="primary" id="mcRun">Run simulation</button>
+      </div>
+      <div class="grid2"><div id="mcHist"></div><div id="mcCost"></div></div>
+      <div id="mcTable" style="margin-top:10px"></div>
+    </div>
+  </section>
+
+  <section id="tab-scales" hidden>
+    <div class="grid2">
+      <div class="panel"><h2>Probability scale</h2><table>
+        <tr><th>Rating</th><th>Label</th><th>Probability</th></tr>
+        <tr><td>5</td><td>Very high</td><td>70% or more</td></tr><tr><td>4</td><td>High</td><td>50% to 69%</td></tr>
+        <tr><td>3</td><td>Medium</td><td>30% to 49%</td></tr><tr><td>2</td><td>Low</td><td>10% to 29%</td></tr><tr><td>1</td><td>Very low</td><td>below 10%</td></tr></table></div>
+      <div class="panel"><h2>Impact scale (the higher of cost and schedule)</h2><table>
+        <tr><th>Rating</th><th>Cost impact</th><th>Schedule impact on the activity</th></tr>
+        <tr><td>5</td><td>Rs 1,00,000 or more</td><td>20 working days or more</td></tr><tr><td>4</td><td>Rs 50,000 to 99,999</td><td>10 to 19 days</td></tr>
+        <tr><td>3</td><td>Rs 25,000 to 49,999</td><td>5 to 9 days</td></tr><tr><td>2</td><td>Rs 10,000 to 24,999</td><td>2 to 4 days</td></tr><tr><td>1</td><td>below Rs 10,000</td><td>0 to 1 day</td></tr></table></div>
+      <div class="panel"><h2>Score zones and required action</h2><table>
+        <tr><th>Zone</th><th>Score</th><th>Threat</th><th>Opportunity</th></tr>
+        <tr><td><span class="score zH">High</span></td><td>12 to 25</td><td>Response plan with an owner within 2 days; reviewed weekly; reported to the sponsor</td><td>Exploit or share actively</td></tr>
+        <tr><td><span class="score zM">Medium</span></td><td>6 to 11</td><td>Response plan; reviewed every two weeks</td><td>Enhance where cheap</td></tr>
+        <tr><td><span class="score zL">Low</span></td><td>1 to 5</td><td>Watch list; reviewed at milestones</td><td>Accept</td></tr></table></div>
+      <div class="panel"><h2>Response strategies</h2><table>
+        <tr><th>Threats</th><th>Opportunities</th></tr>
+        <tr><td><b>Avoid</b>: remove the cause or change the plan</td><td><b>Exploit</b>: make sure it happens</td></tr>
+        <tr><td><b>Transfer</b>: move the impact to a third party (contract, insurance)</td><td><b>Share</b>: work with a partner who can capture it</td></tr>
+        <tr><td><b>Mitigate</b>: reduce probability or impact</td><td><b>Enhance</b>: increase probability or impact</td></tr>
+        <tr><td><b>Accept</b>: actively (fallback plan, contingency) or passively</td><td><b>Accept</b>: take it if it happens</td></tr>
+        <tr><td colspan="2"><b>Escalate</b> (both): the risk is outside the project manager's authority and is handed to the sponsor</td></tr></table></div>
+    </div>
+  </section>
+</main>
+<aside class="drawer" id="drawer"></aside>
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = {"status":"2026-10-10","start":"2026-09-01","golive":"2027-01-27","holidays":["2026-09-14","2026-10-02","2026-10-20","2026-11-09","2026-11-10","2026-11-11","2026-12-25","2026-12-28","2026-12-29","2026-12-30","2026-12-31","2027-01-01","2027-01-26"],"contingency":102000,"mgmtReserve":51000,"bac":1017800,"owners":{"SP":"Sponsor (R. Kulkarni)","OH":"Operations Head (M. Kulkarni)","PM":"Project Manager (Abhay Maurya)","BA":"Business Analyst","DEV":"Developers","OPS":"DevOps Engineer","QA":"QA Engineer","UX":"UI/UX Designer"},"acts":[{"id":"A","name":"Project initiation and charter","o":4,"m":5,"p":6,"dur":5},{"id":"B","name":"Project planning (baselines)","o":4,"m":5,"p":9,"dur":6},{"id":"C","name":"Requirements specification","o":8,"m":10,"p":12,"dur":10},{"id":"D","name":"UI/UX design and prototype test","o":12,"m":15,"p":18,"dur":15},{"id":"E","name":"Architecture and database design","o":8,"m":10,"p":12,"dur":10},{"id":"F","name":"Cloud hosting and environments","o":5,"m":7,"p":9,"dur":7},{"id":"G","name":"CI/CD pipeline","o":4,"m":5,"p":6,"dur":5},{"id":"H","name":"User accounts and OTP login","o":6,"m":8,"p":10,"dur":8},{"id":"I","name":"Product catalogue and search","o":12,"m":14,"p":18,"dur":14},{"id":"J","name":"Product and inventory admin","o":8,"m":10,"p":12,"dur":10},{"id":"K","name":"Shopping cart and checkout","o":12,"m":14,"p":17,"dur":14},{"id":"L","name":"Payment gateway integration","o":8,"m":10,"p":14,"dur":10},{"id":"M","name":"Order management and returns","o":8,"m":10,"p":14,"dur":10},{"id":"N","name":"Shipping and courier integration","o":5,"m":6,"p":8,"dur":6},{"id":"O","name":"GST invoice generation","o":4,"m":5,"p":7,"dur":5},{"id":"P","name":"Order tracking and notifications","o":6,"m":8,"p":10,"dur":8},{"id":"Q","name":"Sales reports dashboard","o":5,"m":6,"p":7,"dur":6},{"id":"R","name":"Security hardening and backups","o":8,"m":10,"p":12,"dur":10},{"id":"S","name":"Functional and integration testing","o":16,"m":20,"p":24,"dur":20},{"id":"T","name":"Performance and security testing (VAPT)","o":6,"m":8,"p":12,"dur":8},{"id":"U","name":"Product data migration","o":10,"m":12,"p":16,"dur":12},{"id":"V","name":"User acceptance testing","o":4,"m":6,"p":8,"dur":6},{"id":"W","name":"Staff training and user manual","o":6,"m":8,"p":10,"dur":8},{"id":"X","name":"Go-live preparation and deployment","o":3,"m":4,"p":5,"dur":4},{"id":"Y","name":"Hypercare (2 weeks)","o":10,"m":10,"p":10,"dur":10},{"id":"Z","name":"Project closure","o":4,"m":5,"p":6,"dur":5}],"links":[{"p":"A","s":"B","t":"FS","lag":0},{"p":"A","s":"C","t":"FS","lag":0},{"p":"C","s":"D","t":"FS","lag":0},{"p":"B","s":"D","t":"FS","lag":0},{"p":"C","s":"E","t":"FS","lag":-2},{"p":"E","s":"F","t":"FS","lag":-3},{"p":"F","s":"G","t":"SS","lag":3},{"p":"E","s":"H","t":"FS","lag":0},{"p":"D","s":"H","t":"SS","lag":10},{"p":"D","s":"I","t":"FS","lag":0},{"p":"E","s":"I","t":"FS","lag":0},{"p":"H","s":"J","t":"FS","lag":0},{"p":"I","s":"K","t":"FS","lag":0},{"p":"H","s":"K","t":"FS","lag":0},{"p":"K","s":"L","t":"FS","lag":0},{"p":"K","s":"M","t":"SS","lag":4},{"p":"J","s":"M","t":"FS","lag":0},{"p":"M","s":"N","t":"FS","lag":0},{"p":"N","s":"O","t":"FS","lag":0},{"p":"L","s":"P","t":"FS","lag":0},{"p":"N","s":"P","t":"FS","lag":0},{"p":"O","s":"Q","t":"FS","lag":0},{"p":"G","s":"R","t":"FS","lag":15},{"p":"I","s":"S","t":"SS","lag":5},{"p":"P","s":"S","t":"FF","lag":4},{"p":"Q","s":"S","t":"FF","lag":4},{"p":"R","s":"T","t":"FS","lag":0},{"p":"S","s":"T","t":"FF","lag":2},{"p":"J","s":"U","t":"FS","lag":15},{"p":"S","s":"V","t":"FS","lag":0},{"p":"T","s":"V","t":"FS","lag":0},{"p":"U","s":"V","t":"FS","lag":0},{"p":"V","s":"W","t":"SS","lag":3},{"p":"V","s":"X","t":"FS","lag":0},{"p":"W","s":"X","t":"FF","lag":0},{"p":"X","s":"Y","t":"FS","lag":0},{"p":"Y","s":"Z","t":"FS","lag":0}],"risks":[{"id":"T01","type":"Threat","cat":"External","title":"Payment gateway KYC approval delayed","cause":"the gateway needs a full set of KYC documents (GST, PAN, bank proof, website policy pages) and its review queue is long","event":"approval may come after payment integration (L) is due to start on 30 Nov","effect":"L, a critical path activity, cannot be tested with real transactions and go-live slips","act":"L","p":30,"cost":60000,"days":8,"owner":"PM","strategy":"Mitigate","actions":"KYC documents submitted on 08 Oct; weekly follow-up; build and test in sandbox; open a second gateway account in parallel (decision tree, Section 6.3)","trigger":"No approval by 13 Nov (week 11)","fallback":"Go live with the second gateway; switch later","rcost":8000,"rp":10,"rcostimp":15000,"rdays":2,"status":"Active","just":"Response cost Rs 8,000 is lower than the EMV reduction of Rs 16,500, and it protects the critical path."},{"id":"T02","type":"Threat","cat":"External","title":"Product data and photos from suppliers late or incomplete","cause":"8 suppliers send data in different formats and some products have no photos","event":"the product master file may not be complete when data migration (U) starts","effect":"UAT runs on partial data and extra photo shoot days are needed","act":"U","p":50,"cost":40000,"days":5,"owner":"BA","strategy":"Mitigate","actions":"Data template sent with supplier calls in week 3; fortnightly completeness check; photo shoot for missing items already in budget","trigger":"Less than 60% of SKUs complete by 16 Nov","fallback":"Launch with products that are complete; add the rest in hypercare","rcost":0,"rp":30,"rcostimp":25000,"rdays":3,"status":"Active","just":"No extra cost; U has 12 days of float, so the residual schedule effect is absorbed."},{"id":"T03","type":"Threat","cat":"Organisational","title":"Store staff resist the new order process","cause":"staff are used to WhatsApp and worry about extra work and job security","event":"staff may avoid the admin panel or make errors after go-live","effect":"order errors stay high (G7 not met) and extra training is needed","act":"W","p":30,"cost":30000,"days":0,"owner":"OH","strategy":"Mitigate","actions":"Two staff in requirements and UAT; demos in the shop every sprint; Marathi manual; show time saved","trigger":"Negative feedback in sprint demos","fallback":"Extra hands-on sessions during hypercare","rcost":5000,"rp":15,"rcostimp":20000,"rdays":0,"status":"Active","just":"Rs 5,000 of extra demo time reduces EMV by Rs 6,000 and protects the business goal G7."},{"id":"T04","type":"Threat","cat":"Project management","title":"Scope creep from new feature requests","cause":"the owner sees competitor features during development","event":"new features may be requested after the SRS sign-off","effect":"development effort grows and the critical path moves","act":"K","p":40,"cost":80000,"days":10,"owner":"PM","strategy":"Avoid","actions":"Formal change control (CCB); MoSCoW priorities; Phase 2 backlog for new ideas; changes over 2 person-days go to the CCB","trigger":"Change request raised","fallback":"Trade a Could-have feature for the new one","rcost":0,"rp":15,"rcostimp":30000,"rdays":3,"status":"Active","just":"Change control removes the uncontrolled part of the risk at no cost; only approved, funded changes remain."},{"id":"T05","type":"Threat","cat":"Organisational","title":"A developer leaves or is unavailable for long","cause":"the job market for developers is active and the team has only two developers","event":"one developer may leave during development","effect":"storefront or admin chain stops while a replacement is found and handed over","act":"K","p":10,"cost":120000,"days":15,"owner":"PM","strategy":"Transfer","actions":"Contract with the staffing firm requires a replacement within 5 days at their cost; code reviews and shared modules so both developers know all code","trigger":"Resignation or leave over 5 days","fallback":"Contract developer from the staffing firm","rcost":0,"rp":10,"rcostimp":30000,"rdays":5,"status":"Active","just":"Most of the cost moves to the staffing firm by contract; knowledge sharing lowers the schedule effect."},{"id":"T06","type":"Threat","cat":"Technical","title":"Site slows down or fails under launch traffic","cause":"the launch campaign brings a traffic peak on the first days","event":"response times may exceed 3 seconds or the site may go down","effect":"lost sales, bad reviews and emergency fixes during hypercare","act":"X","p":10,"cost":50000,"days":3,"owner":"OPS","strategy":"Mitigate","actions":"Load test with 500 users (T1); auto-scaling and caching; campaign starts after 2 stable days","trigger":"Load test fails the 3-second target","fallback":"Add servers for launch week (Rs 6,000)","rcost":0,"rp":5,"rcostimp":20000,"rdays":1,"status":"Active","just":"Load testing is already in the plan; the residual risk is low."},{"id":"T07","type":"Threat","cat":"Technical","title":"Security breach or customer data leak","cause":"an online store is a target for attacks and stores personal data","event":"a vulnerability may be exploited","effect":"DPDP Act penalties, loss of trust and emergency fixes","act":"Y","p":5,"cost":120000,"days":5,"owner":"OPS","strategy":"Mitigate","actions":"No card data stored (gateway); firewall and hardening (R); external VAPT (T2); least-privilege admin accounts; daily backups","trigger":"VAPT finds a critical issue","fallback":"Incident response plan; take site offline and restore","rcost":0,"rp":2,"rcostimp":60000,"rdays":2,"status":"Active","just":"Controls are already budgeted in R and T; impact is very high so the risk is kept on the watch list."},{"id":"T08","type":"Threat","cat":"Technical","title":"Requirements misunderstood, causing rework","cause":"user stories were written quickly and the requirements phase already slipped by one day","event":"developers may build features differently from what the business expects","effect":"rework in checkout and admin, delaying the critical path","act":"K","p":30,"cost":35000,"days":4,"owner":"BA","strategy":"Mitigate","actions":"Prototype test with 5 customers (D4); acceptance criteria on every card; demo to operations head at the end of each sprint","trigger":"More than 2 change requests from a sprint demo","fallback":"Use contingency for rework days","rcost":3000,"rp":15,"rcostimp":20000,"rdays":2,"status":"Active","just":"Small review cost; sprint demos catch problems early when rework is cheap."},{"id":"T09","type":"Threat","cat":"External","title":"Courier aggregator API change or account delay","cause":"the aggregator updates its API and account approval needs documents","event":"the courier integration (N) may need extra work","effect":"shipping labels and tracking are delayed","act":"N","p":20,"cost":20000,"days":3,"owner":"DEV","strategy":"Mitigate","actions":"Account opened by week 13; integrate through the aggregator SDK; keep manual label printing as fallback","trigger":"No API keys by 23 Nov","fallback":"Manual labels for the first month","rcost":0,"rp":10,"rcostimp":10000,"rdays":1,"status":"Active","just":"No extra cost; manual fallback keeps go-live safe."},{"id":"T10","type":"Threat","cat":"External","title":"WhatsApp Business API approval delayed","cause":"message templates need approval from the provider","event":"WhatsApp notifications (P3) may not be ready for go-live","effect":"customers get SMS and e-mail only at launch","act":"P","p":30,"cost":10000,"days":2,"owner":"DEV","strategy":"Accept","actions":"Active acceptance: launch with SMS and e-mail; add WhatsApp when approved","trigger":"Templates not approved by 16 Dec","fallback":"SMS and e-mail only","rcost":0,"rp":30,"rcostimp":10000,"rdays":2,"status":"Active","just":"Impact is small and any response would cost more than the EMV of Rs 3,000."},{"id":"T11","type":"Threat","cat":"Organisational","title":"Business users not available for UAT","cause":"January is the start of the wedding season and the shop is busy","event":"the owner and staff may not attend UAT sessions on time","effect":"UAT sign-off (M4) and go-live slip","act":"V","p":30,"cost":15000,"days":3,"owner":"OH","strategy":"Mitigate","actions":"UAT dates (13 to 20 Jan) booked in the shop calendar now; sessions in the morning before opening","trigger":"UAT session cancelled","fallback":"Evening sessions; sponsor nominates a deputy","rcost":0,"rp":10,"rcostimp":10000,"rdays":1,"status":"Active","just":"Booking dates early costs nothing and removes most of the risk."},{"id":"T12","type":"Threat","cat":"Technical","title":"Cloud hosting cost above plan","cause":"test environments and storage grow during development","event":"monthly hosting bills may exceed the planned Rs 6,000","effect":"overrun on the hosting work package","act":"F","p":20,"cost":15000,"days":0,"owner":"OPS","strategy":"Accept","actions":"Budget alerts at 80% of the monthly plan; switch off test servers at night","trigger":"Budget alert","fallback":"Use contingency","rcost":0,"rp":20,"rcostimp":8000,"rdays":0,"status":"Active","just":"Low EMV; simple cost controls are enough."},{"id":"T13","type":"Threat","cat":"External","title":"GST invoice errors found late by the CA","cause":"GST rules differ by product type and delivery state","event":"the CA may reject the invoice format during review (O3)","effect":"rework of invoices close to testing","act":"O","p":20,"cost":15000,"days":2,"owner":"BA","strategy":"Mitigate","actions":"CA consulted on HSN codes and rates in requirements; sample invoices reviewed as soon as O1 is done","trigger":"CA review finds an error","fallback":"Fix during testing using developer support days","rcost":0,"rp":10,"rcostimp":8000,"rdays":1,"status":"Active","just":"Early review costs nothing extra."},{"id":"T14","type":"Threat","cat":"Organisational","title":"Owner delays vendor payments in the slow season","cause":"shop cash flow is low in December before the wedding season","event":"payments to the audit firm or contractors may be delayed","effect":"vendors pause work, delaying the security audit","act":"T","p":15,"cost":20000,"days":5,"owner":"SP","strategy":"Escalate","actions":"Escalated to the sponsor: business-level cash planning is outside the PM authority; payment dates agreed in vendor contracts","trigger":"Invoice unpaid after 15 days","fallback":"Sponsor releases management reserve","rcost":0,"rp":10,"rcostimp":15000,"rdays":3,"status":"Escalated","just":"The cause is the business cash flow, which only the sponsor controls."},{"id":"T15","type":"Threat","cat":"External","title":"New data protection rules need consent changes","cause":"rules under the DPDP Act 2023 are still being notified","event":"new consent or notice requirements may apply before go-live","effect":"changes to registration and privacy screens","act":"H","p":15,"cost":25000,"days":3,"owner":"PM","strategy":"Accept","actions":"Watch notifications monthly; consent screens built as configurable text","trigger":"New rule notified","fallback":"Change request to the CCB","rcost":0,"rp":15,"rcostimp":15000,"rdays":2,"status":"Watch","just":"Outside project control; a configurable design lowers the impact at no extra cost."},{"id":"O01","type":"Opportunity","cat":"Technical","title":"Reuse an open-source UI component library","cause":"a mature component library matches the approved design","event":"the storefront can be built from ready components","effect":"catalogue and checkout pages are built faster","act":"I","p":50,"cost":30000,"days":4,"owner":"DEV","strategy":"Exploit","actions":"Library chosen in the architecture (E); designer maps mock-ups to library components","trigger":"Architecture review","fallback":"-","rcost":0,"rp":90,"rcostimp":30000,"rdays":4,"status":"Active","just":"Exploit makes the opportunity almost certain at no cost; saves effort on the critical path."},{"id":"O02","type":"Opportunity","cat":"External","title":"Cloud provider start-up credits","cause":"the cloud provider has a programme for small Indian businesses","event":"ShopEase may receive hosting credits","effect":"hosting cost during the project falls","act":"F","p":40,"cost":25000,"days":0,"owner":"OPS","strategy":"Enhance","actions":"Application with GST and company documents submitted; follow up with the provider account manager","trigger":"Credits approved","fallback":"-","rcost":0,"rp":60,"rcostimp":25000,"rdays":0,"status":"Active","just":"Small effort raises the probability of a Rs 25,000 saving."},{"id":"O03","type":"Opportunity","cat":"External","title":"Suppliers provide professional product photos","cause":"two large suppliers already have catalogue photos","event":"they may share them for ShopEase products","effect":"fewer products need the paid photo shoot","act":"U","p":30,"cost":20000,"days":2,"owner":"BA","strategy":"Enhance","actions":"Request photos from all suppliers with the data template; offer supplier branding on product pages","trigger":"Supplier sends photo set","fallback":"-","rcost":0,"rp":50,"rcostimp":20000,"rdays":2,"status":"Active","just":"Asking early increases the chance at no cost."},{"id":"O04","type":"Opportunity","cat":"Project management","title":"Shorter UAT through sprint demos","cause":"the operations head already reviews features in sprint demos","event":"many UAT scripts may be accepted before formal UAT","effect":"UAT takes fewer days","act":"V","p":40,"cost":10000,"days":2,"owner":"PM","strategy":"Enhance","actions":"Record demo acceptance against UAT scripts; formal UAT covers only what is left","trigger":"Over 50% of scripts accepted in demos","fallback":"-","rcost":0,"rp":60,"rcostimp":10000,"rdays":2,"status":"Active","just":"Uses meetings that already happen; may give schedule reserve before go-live."},{"id":"O05","type":"Opportunity","cat":"External","title":"Courier aggregator provides an integration engineer","cause":"the aggregator offers integration support to merchants who sign a 12-month contract","event":"its engineer may help build the courier integration","effect":"less developer effort on N","act":"N","p":30,"cost":15000,"days":2,"owner":"SP","strategy":"Share","actions":"Sponsor negotiates the 12-month contract including integration support; benefit shared with the aggregator","trigger":"Contract signed","fallback":"-","rcost":0,"rp":60,"rcostimp":15000,"rdays":2,"status":"Active","just":"Sharing with a partner who has the skills; the contract is needed anyway."}]};
+const KEY = 'shopease-risks-v1';
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const rs = (n) => { const neg = n < 0; let s = Math.round(Math.abs(n)).toString(); if (s.length > 3) { let h = s.slice(0, -3), t = s.slice(-3), p = []; while (h.length > 2) { p.unshift(h.slice(-2)); h = h.slice(0, -2); } if (h) p.unshift(h); s = p.join(',') + ',' + t; } return (neg ? '-' : '') + 'Rs ' + s; };
+const T_STRAT = ['Avoid', 'Transfer', 'Mitigate', 'Accept', 'Escalate'], O_STRAT = ['Exploit', 'Share', 'Enhance', 'Accept', 'Escalate'];
+const STATUS = ['Active', 'Watch', 'Escalated', 'Occurred', 'Closed'];
+let S; const seed = () => ({ view: 'inherent', risks: JSON.parse(JSON.stringify(DATA.risks)) });
+try { S = JSON.parse(localStorage.getItem(KEY)) || seed(); } catch (e) { S = seed(); }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* storage not available */ } };
+
+// ---------- ratings ----------
+const pR = (p) => (p >= 70 ? 5 : p >= 50 ? 4 : p >= 30 ? 3 : p >= 10 ? 2 : 1);
+const cR = (c) => (c >= 100000 ? 5 : c >= 50000 ? 4 : c >= 25000 ? 3 : c >= 10000 ? 2 : 1);
+const dR = (d) => (d >= 20 ? 5 : d >= 10 ? 4 : d >= 5 ? 3 : d >= 2 ? 2 : 1);
+const zone = (s) => (s >= 12 ? 'H' : s >= 6 ? 'M' : 'L');
+const zcls = (r, s) => (r.type === 'Threat' ? 'z' : 'o') + zone(s);
+function vals(r, v = S.view) { return v === 'residual' ? { p: r.rp, cost: r.rcostimp, days: r.rdays } : { p: r.p, cost: r.cost, days: r.days }; }
+function rate(r, v) { const x = vals(r, v); const P = pR(x.p), I = Math.max(cR(x.cost), dR(x.days)); return { ...x, P, I, score: P * I, emv: x.p / 100 * x.cost * (r.type === 'Threat' ? 1 : -1), edays: x.p / 100 * x.days * (r.type === 'Threat' ? 1 : -1) }; }
+
+// ---------- totals ----------
+function totals(v) {
+  let th = 0, op = 0, hi = 0, nT = 0, nO = 0, rc = 0;
+  for (const r of S.risks) { if (r.status === 'Closed') continue; const x = rate(r, v); if (r.type === 'Threat') { th += x.emv; nT++; if (zone(x.score) === 'H') hi++; } else { op += -x.emv; nO++; } rc += +r.rcost || 0; }
+  return { th, op, net: th - op, hi, nT, nO, rc };
+}
+let MC = null;
+function renderKpis() {
+  const a = totals(S.view), inh = totals('inherent'), res = totals('residual');
+  const cover = DATA.contingency - a.net;
+  const k = [
+    ['Threats / opportunities', `${a.nT} / ${a.nO}`, 'open risks'],
+    ['High threats', `<span class="${a.hi ? 'bad' : 'good'}">${a.hi}</span>`, S.view === 'residual' ? 'after response' : 'before response'],
+    ['Threat EMV', rs(a.th), 'probability x cost'],
+    ['Opportunity EMV', rs(a.op), 'expected saving'],
+    ['Net EMV', rs(a.net), `contingency ${rs(DATA.contingency)}`],
+    ['Contingency cover', `<span class="${cover >= 0 ? 'good' : 'bad'}">${rs(cover)}</span>`, cover >= 0 ? 'reserve is enough' : 'reserve too small'],
+    ['Response cost', rs(a.rc), `EMV reduced by ${rs(inh.net - res.net)}`],
+    ['On-time go-live', MC ? `${Math.round(MC.onTime * 100)}%` : '-', MC ? `P80 ${fmt(MC.p80)}` : 'run the simulation'],
+  ];
+  $('#kpis').innerHTML = k.map(([x, y, z]) => `<div class="kpi"><span>${x}</span><b>${y}</b><small>${z}</small></div>`).join('');
+}
+
+// ---------- register ----------
+const filt = { type: '', owner: '', zone: '', sort: 'score' };
+function renderRegister() {
+  let list = S.risks.map((r) => ({ r, x: rate(r), res: rate(r, 'residual') }));
+  list = list.filter(({ r, x }) => (!filt.type || r.type === filt.type) && (!filt.owner || r.owner === filt.owner) && (!filt.zone || zone(x.score) === filt.zone));
+  list.sort((a, b) => filt.sort === 'id' ? a.r.id.localeCompare(b.r.id) : filt.sort === 'emv' ? Math.abs(b.x.emv) - Math.abs(a.x.emv) : b.x.score - a.x.score || Math.abs(b.x.emv) - Math.abs(a.x.emv));
+  const res = S.view === 'residual';
+  const own = (r) => `<select data-f="owner" data-id="${r.id}">${Object.keys(DATA.owners).map((o) => `<option ${o === r.owner ? 'selected' : ''}>${o}</option>`).join('')}</select>`;
+  const strat = (r) => `<select data-f="strategy" data-id="${r.id}">${(r.type === 'Threat' ? T_STRAT : O_STRAT).map((o) => `<option ${o === r.strategy ? 'selected' : ''}>${o}</option>`).join('')}</select>`;
+  const st = (r) => `<select data-f="status" data-id="${r.id}">${STATUS.map((o) => `<option ${o === r.status ? 'selected' : ''}>${o}</option>`).join('')}</select>`;
+  const num = (r, f, step) => `<input type="number" min="0" step="${step}" data-f="${f}" data-id="${r.id}" value="${r[f]}">`;
+  $('#reg').innerHTML = `<tr><th>ID</th><th>Type</th><th>Risk</th><th>Activity</th><th>Owner</th><th class="n">${res ? 'Residual ' : ''}Prob. %</th><th class="n">${res ? 'Residual ' : ''}Cost impact</th><th class="n">${res ? 'Residual ' : ''}Days</th><th class="n">P</th><th class="n">I</th><th class="n">Score</th><th class="n">EMV</th><th>Strategy</th><th class="n">Residual score</th><th>Status</th></tr>` +
+    list.map(({ r, x, res: y }) => `<tr><td><b>${r.id}</b></td><td class="type-${r.type[0]}">${r.type}</td><td class="title" data-open="${r.id}">${esc(r.title)}</td><td>${r.act}</td><td>${own(r)}</td>
+      <td class="n">${num(r, res ? 'rp' : 'p', 5)}</td><td class="n">${num(r, res ? 'rcostimp' : 'cost', 1000)}</td><td class="n">${num(r, res ? 'rdays' : 'days', 1)}</td>
+      <td class="n">${x.P}</td><td class="n">${x.I}</td><td class="n"><span class="score ${zcls(r, x.score)}">${x.score}</span></td><td class="n">${rs(x.emv)}</td><td>${strat(r)}</td>
+      <td class="n"><span class="score ${zcls(r, y.score)}">${y.score}</span></td><td>${st(r)}</td></tr>`).join('');
+}
+
+// ---------- matrix ----------
+const PMID = [0, 5, 20, 40, 60, 80], CMID = [0, 5000, 17500, 37500, 75000, 150000], DMAX = [0, 1, 4, 9, 19, 30];
+function renderMatrix() {
+  for (const type of ['Threat', 'Opportunity']) {
+    const el = type === 'Threat' ? $('#pimT') : $('#pimO');
+    let o = '';
+    for (let P = 5; P >= 1; P--) {
+      o += `<div class="ylab">P${P}</div>`;
+      for (let I = 1; I <= 5; I++) {
+        const sc = P * I, chips = S.risks.filter((r) => r.type === type && r.status !== 'Closed').filter((r) => { const x = rate(r); return x.P === P && x.I === I; });
+        o += `<div class="cell ${(type === 'Threat' ? 'z' : 'o') + zone(sc)}" data-p="${P}" data-i="${I}" data-type="${type}">${chips.map((r) => `<span class="chip" draggable="true" data-chip="${r.id}" title="${esc(r.title)} (EMV ${rs(rate(r).emv)})">${r.id}</span>`).join('')}<span class="sc">${sc}</span></div>`;
+      }
+    }
+    o += `<div></div>${[1, 2, 3, 4, 5].map((i) => `<div class="xlab">I${i}</div>`).join('')}`;
+    el.innerHTML = o;
+  }
+  const top = S.risks.filter((r) => r.status !== 'Closed').map((r) => ({ r, x: rate(r) })).sort((a, b) => b.x.score - a.x.score || Math.abs(b.x.emv) - Math.abs(a.x.emv)).slice(0, 8);
+  $('#top').innerHTML = `<table><tr><th>ID</th><th>Risk</th><th>Owner</th><th class="n">Score</th><th class="n">EMV</th><th>Response</th></tr>${top.map(({ r, x }) =>
+    `<tr><td><b>${r.id}</b></td><td>${esc(r.title)}</td><td>${r.owner}</td><td class="n"><span class="score ${zcls(r, x.score)}">${x.score}</span></td><td class="n">${rs(x.emv)}</td><td>${r.strategy}: ${esc(r.actions)}</td></tr>`).join('')}</table>`;
+}
+
+// ---------- quantitative ----------
+function renderQuant() {
+  const inh = totals('inherent'), res = totals('residual');
+  const R = (a, b, c) => `<tr><th>${a}</th><td class="n">${b}</td><td class="n">${c}</td></tr>`;
+  $('#emvTable').innerHTML = `<table><tr><th></th><th class="n">Before response</th><th class="n">After response</th></tr>
+    ${R('Threat EMV', rs(inh.th), rs(res.th))}${R('Opportunity EMV', rs(-inh.op), rs(-res.op))}${R('Net EMV', rs(inh.net), rs(res.net))}
+    ${R('Response cost', '-', rs(res.rc))}${R('Net EMV + response cost', rs(inh.net), rs(res.net + res.rc))}
+    ${R('Contingency reserve', rs(DATA.contingency), rs(DATA.contingency))}${R('Reserve left', rs(DATA.contingency - inh.net), rs(DATA.contingency - res.net - res.rc))}
+    ${R('Management reserve (sponsor)', rs(DATA.mgmtReserve), rs(DATA.mgmtReserve))}</table>`;
+  const list = S.risks.filter((r) => r.status !== 'Closed').map((r) => ({ r, a: rate(r, 'inherent').emv, b: rate(r, 'residual').emv })).sort((x, y) => Math.abs(y.a) - Math.abs(x.a));
+  const W = 560, rowH = 18, L = 46, mid = 220, sc = (W - L - mid - 64) / Math.max(...list.map((x) => Math.abs(x.a)), 1);
+  let o = `<svg viewBox="0 0 ${W} ${list.length * rowH + 30}" width="100%">`;
+  list.forEach(({ r, a, b }, k) => { const y = 6 + k * rowH;
+    o += `<text x="${L - 6}" y="${y + 12}" font-size="11" text-anchor="end">${r.id}</text>`;
+    const col = a >= 0 ? '#e5484d' : '#3a9fbf', x0 = a >= 0 ? L + mid : L + mid + a * sc;
+    o += `<rect x="${x0}" y="${y + 2}" width="${Math.abs(a) * sc}" height="${rowH - 6}" fill="${col}"/>`;
+    const x1 = b >= 0 ? L + mid : L + mid + b * sc; o += `<rect x="${x1}" y="${y + 2}" width="${Math.abs(b) * sc}" height="${rowH - 6}" fill="none" stroke="#172b4d" stroke-dasharray="3,2"/>`;
+    o += `<text x="${a >= 0 ? L + mid + a * sc + 4 : L + mid + a * sc - 4}" y="${y + 12}" font-size="10" text-anchor="${a >= 0 ? 'start' : 'end'}" fill="#5e6c84">${rs(a).replace('Rs ', '')}</text>`; });
+  o += `<line x1="${L + mid}" x2="${L + mid}" y1="0" y2="${list.length * rowH + 8}" stroke="#172b4d"/><text x="${L + mid}" y="${list.length * rowH + 24}" font-size="11" text-anchor="middle">0 (saving left, cost right)</text></svg>`;
+  $('#emvChart').innerHTML = o;
+}
+
+// ---------- Monte Carlo ----------
+const HOL = new Set(DATA.holidays);
+const toD = (s) => new Date(s + 'T00:00:00Z'), toS = (d) => d.toISOString().slice(0, 10);
+const addDays = (s, n) => { const d = toD(s); d.setUTCDate(d.getUTCDate() + n); return toS(d); };
+const isWork = (s) => { const w = toD(s).getUTCDay(); return w > 0 && w < 6 && !HOL.has(s); };
+function wdDate(n) { let s = DATA.start, k = 0; while (k < n) { s = addDays(s, 1); if (isWork(s)) k++; } return s; }
+const fmt = (s) => toD(s).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+function rng(seed) { let a = seed >>> 0; return () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+function gamma(k, u) { // Marsaglia-Tsang, k >= 1
+  const d = k - 1 / 3, c = 1 / Math.sqrt(9 * d);
+  for (;;) { let x, v; do { const u1 = u(), u2 = u(); x = Math.sqrt(-2 * Math.log(u1 || 1e-12)) * Math.cos(2 * Math.PI * u2); v = 1 + c * x; } while (v <= 0);
+    v = v * v * v; const uu = u(); if (uu < 1 - 0.0331 * x ** 4 || Math.log(uu) < 0.5 * x * x + d * (1 - v + Math.log(v))) return d * v; }
+}
+function pert(o, m, p, u) { if (p <= o) return m; const a = 1 + 4 * (m - o) / (p - o), b = 1 + 4 * (p - m) / (p - o); const x = gamma(a, u), y = gamma(b, u); return o + (p - o) * x / (x + y); }
+const ORDER = DATA.acts.map((a) => a.id), PRED = Object.fromEntries(ORDER.map((i) => [i, []]));
+for (const l of DATA.links) PRED[l.s].push(l);
+function forward(dur) {
+  const ES = {}, EF = {};
+  for (const i of ORDER) { let es = 0; for (const l of PRED[i]) es = Math.max(es, l.t === 'FS' ? EF[l.p] + l.lag : l.t === 'SS' ? ES[l.p] + l.lag : EF[l.p] + l.lag - dur[i]); ES[i] = es; EF[i] = es + dur[i]; }
+  return { ES, EF };
+}
+const baseDur = Object.fromEntries(DATA.acts.map((a) => [a.id, a.dur]));
+const BASE_GL = forward(baseDur).ES.Y;
+function simulate(n, mode, seedV) {
+  const u = rng(seedV), risks = mode === 'none' ? [] : S.risks.filter((r) => r.status !== 'Closed' && r.status !== 'Occurred');
+  const gl = [], cost = [];
+  for (let k = 0; k < n; k++) {
+    const dur = {}; for (const a of DATA.acts) dur[a.id] = pert(a.o, a.m, a.p, u);
+    let c = 0;
+    for (const r of risks) { const x = vals(r); if (u() < x.p / 100) { const f = 0.5 + u(); const sign = r.type === 'Threat' ? 1 : -1;
+      if (dur[r.act] !== undefined) dur[r.act] = Math.max(1, dur[r.act] + sign * x.days * f); c += sign * x.cost * (0.75 + 0.5 * u()); } }
+    gl.push(Math.ceil(forward(dur).ES.Y - 1e-9)); cost.push(DATA.bac + c);
+  }
+  gl.sort((a, b) => a - b); cost.sort((a, b) => a - b);
+  const q = (arr, p) => arr[Math.min(arr.length - 1, Math.floor(p * arr.length))];
+  return { n, gl, cost, p50: wdDate(q(gl, 0.5)), p80: wdDate(q(gl, 0.8)), p90: wdDate(q(gl, 0.9)), onTime: gl.filter((x) => x <= BASE_GL).length / n,
+    mean: gl.reduce((s, x) => s + x, 0) / n - BASE_GL, c50: q(cost, 0.5), c80: q(cost, 0.8), c90: q(cost, 0.9),
+    inBase: cost.filter((x) => x <= DATA.bac + DATA.contingency).length / n, mode, view: S.view, seed: seedV };
+}
+function hist(values, w, h, xlab, fmtX, mark, markLab) {
+  const min = Math.min(...values), max = Math.max(...values), nb = Math.min(30, Math.max(8, max - min + 1)), bw = (max - min) / nb || 1;
+  const bins = Array(nb).fill(0); for (const v of values) bins[Math.min(nb - 1, Math.floor((v - min) / bw))]++;
+  const L = 40, B = 34, T = 10, pw = w - L - 10, ph = h - B - T, ym = Math.max(...bins);
+  let o = `<svg viewBox="0 0 ${w} ${h}" width="100%">`;
+  bins.forEach((b, k) => { const x = L + k * pw / nb, bh = b / ym * ph, mid = min + (k + 0.5) * bw; o += `<rect x="${x + 1}" y="${T + ph - bh}" width="${pw / nb - 2}" height="${bh}" fill="${mid <= mark ? '#4bce97' : '#f87168'}"/>`; });
+  let cum = 0; const pts = bins.map((b, k) => { cum += b; return `${L + (k + 1) * pw / nb},${T + ph - cum / values.length * ph}`; });
+  o += `<polyline points="${L},${T + ph} ${pts.join(' ')}" fill="none" stroke="#172b4d" stroke-width="1.5"/>`;
+  const mx = L + (mark - min) / (max - min || 1) * pw; if (mark >= min && mark <= max) o += `<line x1="${mx}" x2="${mx}" y1="${T}" y2="${T + ph}" stroke="#0c66e4" stroke-dasharray="4,3"/><text x="${mx + 3}" y="${T + 10}" font-size="10" fill="#0c66e4">${markLab}</text>`;
+  for (let k = 0; k <= 4; k++) { const v = min + (max - min) * k / 4; o += `<text x="${L + pw * k / 4}" y="${T + ph + 14}" font-size="10" text-anchor="middle" fill="#5e6c84">${fmtX(v)}</text>`; }
+  o += `<line x1="${L}" x2="${L + pw}" y1="${T + ph}" y2="${T + ph}" stroke="#8993a4"/><text x="${L + pw / 2}" y="${h - 4}" font-size="11" text-anchor="middle">${xlab}</text>`;
+  o += `<text x="${L + pw}" y="${T + 10}" font-size="10" text-anchor="end" fill="#172b4d">line = cumulative %</text></svg>`;
+  return o;
+}
+function renderMC() {
+  if (!MC) { $('#mcHist').innerHTML = '<p class="note">Press "Run simulation".</p>'; $('#mcCost').innerHTML = ''; $('#mcTable').innerHTML = ''; return; }
+  $('#mcHist').innerHTML = `<b>Go-live date</b>` + hist(MC.gl, 560, 230, 'Go-live (working day of the project, date below)', (v) => fmt(wdDate(Math.round(v))).slice(0, 6), BASE_GL, 'baseline ' + fmt(DATA.golive).slice(0, 6));
+  $('#mcCost').innerHTML = `<b>Cost of work packages incl. risk events</b>` + hist(MC.cost, 560, 230, 'Cost (Rs lakh)', (v) => (v / 1e5).toFixed(1), DATA.bac + DATA.contingency, 'cost baseline');
+  const R = (a, b) => `<tr><th>${a}</th><td>${b}</td></tr>`;
+  $('#mcTable').innerHTML = `<table>${R('Runs / risks included', `${MC.n} / ${MC.mode === 'none' ? 'none (duration uncertainty only)' : MC.view === 'residual' ? 'after response' : 'before response'} (seed ${MC.seed})`)}
+    ${R('Baseline go-live', fmt(DATA.golive))}${R('Probability of go-live on or before the baseline date', `<b>${Math.round(MC.onTime * 100)}%</b>`)}
+    ${R('P50 / P80 / P90 go-live', `${fmt(MC.p50)} / <b>${fmt(MC.p80)}</b> / ${fmt(MC.p90)}`)}${R('Average delay against baseline', `${MC.mean.toFixed(1)} working days`)}
+    ${R('P50 / P80 / P90 cost', `${rs(MC.c50)} / <b>${rs(MC.c80)}</b> / ${rs(MC.c90)}`)}${R('Probability cost stays within the cost baseline (BAC + contingency)', `<b>${Math.round(MC.inBase * 100)}%</b>`)}</table>`;
+}
+
+// ---------- drawer ----------
+function openRisk(id) {
+  const r = S.risks.find((x) => x.id === id); const x = rate(r, 'inherent'), y = rate(r, 'residual');
+  const f = (k, lab, type = 'text') => `<label>${lab}</label><input data-d="${k}" type="${type}" value="${esc(r[k])}">`;
+  const t = (k, lab) => `<label>${lab}</label><textarea data-d="${k}">${esc(r[k])}</textarea>`;
+  $('#drawer').innerHTML = `<button id="closeD" style="float:right">Close</button><span class="type-${r.type[0]}">${r.id} &middot; ${r.type}</span>
+    <h3>${esc(r.title)}</h3>
+    <p class="note">Before response: P${x.P} x I${x.I} = <span class="score ${zcls(r, x.score)}">${x.score}</span>, EMV ${rs(x.emv)}. After response: P${y.P} x I${y.I} = <span class="score ${zcls(r, y.score)}">${y.score}</span>, EMV ${rs(y.emv)}.</p>
+    ${f('title', 'Title')}<label>Category</label><select data-d="cat">${['Technical', 'External', 'Organisational', 'Project management'].map((c) => `<option ${c === r.cat ? 'selected' : ''}>${c}</option>`).join('')}</select>
+    <label>Activity affected</label><select data-d="act">${DATA.acts.map((a) => `<option value="${a.id}" ${a.id === r.act ? 'selected' : ''}>${a.id} ${esc(a.name)}</option>`).join('')}</select>
+    ${t('cause', 'Because of (cause)')}${t('event', 'this may happen (risk event)')}${t('effect', 'leading to (effect)')}
+    <div class="row"><div>${f('p', 'Probability %', 'number')}</div><div>${f('cost', 'Cost impact Rs', 'number')}</div><div>${f('days', 'Days', 'number')}</div></div>
+    ${t('actions', 'Response actions')}${t('just', 'Why this response')}${f('trigger', 'Trigger')}${f('fallback', 'Fallback plan')}
+    <div class="row"><div>${f('rp', 'Residual prob. %', 'number')}</div><div>${f('rcostimp', 'Residual cost Rs', 'number')}</div><div>${f('rdays', 'Residual days', 'number')}</div></div>
+    ${f('rcost', 'Cost of the response Rs', 'number')}
+    <p style="margin-top:14px"><button id="delR">Delete risk</button></p>`;
+  $('#drawer').classList.add('open');
+  $('#closeD').onclick = () => $('#drawer').classList.remove('open');
+  $('#drawer').querySelectorAll('[data-d]').forEach((el) => el.onchange = () => { const k = el.dataset.d; r[k] = el.type === 'number' ? +el.value : el.value; save(); render(); openRisk(id); });
+  $('#delR').onclick = () => { if (confirm(`Delete ${r.id}?`)) { S.risks = S.risks.filter((z) => z !== r); save(); $('#drawer').classList.remove('open'); render(); } };
+}
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2600); }
+
+function render() {
+  $('#statusDate').textContent = fmt(DATA.status);
+  document.querySelectorAll('#view button').forEach((b) => b.classList.toggle('on', b.dataset.v === S.view));
+  renderKpis();
+  if (!$('#tab-register').hidden) renderRegister();
+  if (!$('#tab-matrix').hidden) renderMatrix();
+  if (!$('#tab-quant').hidden) { renderQuant(); renderMC(); }
+}
+
+// ---------- events ----------
+$('#fOwner').innerHTML += Object.keys(DATA.owners).map((o) => `<option value="${o}">${o}</option>`).join('');
+for (const [id, k] of [['#fType', 'type'], ['#fOwner', 'owner'], ['#fZone', 'zone'], ['#fSort', 'sort']]) $(id).onchange = (e) => { filt[k] = e.target.value; render(); };
+$('#view').onclick = (e) => { const b = e.target.closest('button'); if (b) { S.view = b.dataset.v; save(); if (MC && MC.mode !== 'none') MC = null; render(); } };
+$('#tabs').onclick = (e) => { const b = e.target.closest('button'); if (!b) return; document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x === b));
+  for (const t of ['register', 'matrix', 'quant', 'scales']) $('#tab-' + t).hidden = t !== b.dataset.tab; render(); };
+$('#reg').addEventListener('change', (e) => { const el = e.target.closest('[data-f]'); if (!el) return; const r = S.risks.find((x) => x.id === el.dataset.id);
+  r[el.dataset.f] = el.type === 'number' ? Math.max(0, +el.value) : el.value; if (el.dataset.f === 'p' || el.dataset.f === 'rp') r[el.dataset.f] = Math.min(100, r[el.dataset.f]);
+  save(); render(); const x = rate(r); toast(`${r.id}: P${x.P} x I${x.I} = ${x.score}, EMV ${rs(x.emv)}`); });
+$('#reg').addEventListener('click', (e) => { const t = e.target.closest('[data-open]'); if (t) openRisk(t.dataset.open); });
+for (const id of ['#pimT', '#pimO']) {
+  const el = $(id);
+  el.addEventListener('click', (e) => { const c = e.target.closest('[data-chip]'); if (c) openRisk(c.dataset.chip); });
+  el.addEventListener('dragstart', (e) => { const c = e.target.closest('[data-chip]'); if (c) e.dataTransfer.setData('text/plain', c.dataset.chip); });
+  el.addEventListener('dragover', (e) => { const c = e.target.closest('.cell'); if (c) { e.preventDefault(); c.classList.add('drop'); } });
+  el.addEventListener('dragleave', (e) => { const c = e.target.closest('.cell'); if (c) c.classList.remove('drop'); });
+  el.addEventListener('drop', (e) => { const c = e.target.closest('.cell'); if (!c) return; e.preventDefault();
+    const r = S.risks.find((x) => x.id === e.dataTransfer.getData('text/plain')); if (!r || r.type !== c.dataset.type) { render(); return; }
+    const P = +c.dataset.p, I = +c.dataset.i, res = S.view === 'residual', kp = res ? 'rp' : 'p', kc = res ? 'rcostimp' : 'cost', kd = res ? 'rdays' : 'days';
+    if (pR(r[kp]) !== P) r[kp] = PMID[P];
+    if (Math.max(cR(r[kc]), dR(r[kd])) !== I) { r[kc] = CMID[I]; r[kd] = Math.min(r[kd], DMAX[I]); }
+    save(); render(); const x = rate(r); toast(`${r.id} re-rated: P${x.P} x I${x.I} = ${x.score}, EMV ${rs(x.emv)}`); });
+}
+function addRisk(type) { const pre = type === 'Threat' ? 'T' : 'O'; let n = 1; while (S.risks.some((r) => r.id === pre + String(n).padStart(2, '0'))) n++;
+  const r = { id: pre + String(n).padStart(2, '0'), type, cat: 'Technical', title: 'New ' + type.toLowerCase(), cause: '', event: '', effect: '', act: 'K', p: 20, cost: 10000, days: 1, owner: 'PM',
+    strategy: type === 'Threat' ? 'Mitigate' : 'Enhance', actions: '', trigger: '', fallback: '', rcost: 0, rp: 10, rcostimp: 10000, rdays: 1, status: 'Active', just: '' };
+  S.risks.push(r); save(); render(); openRisk(r.id); }
+$('#addT').onclick = () => addRisk('Threat'); $('#addO').onclick = () => addRisk('Opportunity');
+$('#resetBtn').onclick = () => { if (confirm('Reset the register to the baseline data?')) { S = seed(); MC = null; save(); render(); } };
+$('#csvBtn').onclick = () => {
+  const cols = ['id', 'type', 'cat', 'title', 'cause', 'event', 'effect', 'act', 'owner', 'p', 'cost', 'days', 'strategy', 'actions', 'trigger', 'fallback', 'rcost', 'rp', 'rcostimp', 'rdays', 'status'];
+  const rows = [cols.concat(['P', 'I', 'score', 'EMV']).join(',')].concat(S.risks.map((r) => { const x = rate(r, 'inherent'); return cols.map((c) => `"${String(r[c]).replace(/"/g, '""')}"`).concat([x.P, x.I, x.score, Math.round(x.emv)]).join(','); }));
+  const b = new Blob([rows.join('\n')], { type: 'text/csv' }), u = URL.createObjectURL(b), l = document.createElement('a'); l.href = u; l.download = 'shopease-risk-register.csv'; l.click(); URL.revokeObjectURL(u); };
+$('#mcRun').onclick = () => { $('#mcRun').textContent = 'Running...'; setTimeout(() => { MC = simulate(+$('#mcN').value, $('#mcMode').value, +$('#mcSeed').value); $('#mcRun').textContent = 'Run simulation'; render(); }, 20); };
+window.rk = { totals, rate: (id, v) => rate(S.risks.find((r) => r.id === id), v), simulate, risks: () => S.risks, setView: (v) => { S.view = v; render(); }, reset: () => { S = seed(); MC = null; save(); render(); }, runMC: (n, mode, seedV) => { MC = simulate(n, mode, seedV); render(); return MC; } };
+render();
+</script>
+</body>
+</html>
